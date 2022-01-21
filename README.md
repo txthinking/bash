@@ -9,6 +9,11 @@ This repo provide a short url for your bash on Github Page with domain bash.ooo
 bash <(curl -s https://bash.ooo/brook.sh)
 ```
 
+## [nami](https://github.com/txthinking/nami)
+
+```
+bash <(curl -s https://bash.ooo/nami.sh)
+```
 ---
 
 PR welcome for any bash
