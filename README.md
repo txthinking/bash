@@ -1,4 +1,4 @@
-# bash.ooo
+# [bash.ooo](https://github.com/txthinking/bash)
 
 This repo provide a short url for your bash on Github Page with domain bash.ooo
 > 这个仓库提供为你的bash脚本提供一个短网址，基于 Github Page 和域名 bash.ooo
