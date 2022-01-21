@@ -20,10 +20,43 @@ restartsh=""
 
 function install(){
     if [ ! -f "$HOME/.nami/bin/nami" ] || [ ! -f "$HOME/.nami/bin/joker" ] || [ ! -f "$HOME/.nami/bin/brook" ];then
-        echo -e "$PC"
-        echo '>>> mkdir -p $HOME/.nami/bin && curl -L https://github.com/txthinking/nami/releases/latest/download/nami_$(uname -s | cut -d_ -f1)$(uname -m) -o $HOME/.nami/bin/nami && chmod +x $HOME/.nami/bin/nami && echo '"'"'export PATH=$HOME/.nami/bin:$PATH'"'"' >> $HOME/.bashrc && echo '"'"'export PATH=$HOME/.nami/bin:$PATH'"'"' >> $HOME/.bash_profile && echo '"'"'export PATH=$HOME/.nami/bin:$PATH'"'"' >> $HOME/.zshenv && export PATH=$HOME/.nami/bin:$PATH'
-        echo -e "$NC"
-        mkdir -p $HOME/.nami/bin && curl -L https://github.com/txthinking/nami/releases/latest/download/nami_$(uname -s | cut -d_ -f1)$(uname -m) -o $HOME/.nami/bin/nami && chmod +x $HOME/.nami/bin/nami && echo 'export PATH=$HOME/.nami/bin:$PATH' >> $HOME/.bashrc && echo 'export PATH=$HOME/.nami/bin:$PATH' >> $HOME/.bash_profile && echo 'export PATH=$HOME/.nami/bin:$PATH' >> $HOME/.zshenv && export PATH=$HOME/.nami/bin:$PATH
+        echo
+        echo -e "$PC"'>>> bash <(curl -s https://bash.ooo/nami.sh)'"$NC"
+        os=""
+        arch=""
+        if [ $(uname -s) = "Darwin" ]; then
+            os="darwin"
+        fi
+        if [ $(uname -s) = "Linux" ]; then
+            os="linux"
+        fi
+        if [ $(uname -s | grep "MINGW" | wc -l) -eq 1 ]; then
+            os="windows"
+        fi
+        if [ $(uname -m) = "x86_64" ]; then
+            arch="amd64"
+        fi
+        if [ $(uname -m) = "arm64" ]; then
+            arch="arm64"
+        fi
+        if [ $(uname -m) = "aarch64" ]; then
+            arch="arm64"
+        fi
+        if [ "$os" = "" -o "$arch" = "" ]; then
+            echo "Nami does not support your OS/ARCH yet. Please submit issue or PR to https://github.com/txthinking/nami"
+            exit
+        fi
+        sfx=""
+        if [ $os = "windows" ]; then
+            sfx=".exe"
+        fi
+        mkdir -p $HOME/.nami/bin
+        curl -L -o $HOME/.nami/bin/nami$sfx "https://github.com/txthinking/nami/releases/latest/download/nami_${os}_${arch}$sfx"
+        chmod +x $HOME/.nami/bin/nami
+        echo 'export PATH=$HOME/.nami/bin:$PATH' >> $HOME/.bashrc
+        echo 'export PATH=$HOME/.nami/bin:$PATH' >> $HOME/.bash_profile
+        echo 'export PATH=$HOME/.nami/bin:$PATH' >> $HOME/.zshenv
+        export PATH=$HOME/.nami/bin:$PATH
         echo
         echo -e "$PC"'>>> nami install joker brook'"$NC"
         nami install joker brook
