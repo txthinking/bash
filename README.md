@@ -6,7 +6,7 @@ This repo provide a short url for your bash on Github Page with domain bash.ooo
 ## [brook](https://github.com/txthinking/brook)
 
 ```
-bash <(curl -s https://bash.ooo/brook)
+bash <(curl -s https://bash.ooo/brook.sh)
 ```
 
 ---
