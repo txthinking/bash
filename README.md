@@ -6,13 +6,13 @@ This repo provide a short url for your bash on Github Page with domain bash.ooo
 ## [brook](https://github.com/txthinking/brook)
 
 ```
-bash <(curl -s https://bash.ooo/brook.sh)
+bash <(curl https://bash.ooo/brook.sh)
 ```
 
 ## [nami](https://github.com/txthinking/nami)
 
 ```
-bash <(curl -s https://bash.ooo/nami.sh)
+bash <(curl https://bash.ooo/nami.sh)
 ```
 ---
 
