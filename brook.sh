@@ -21,7 +21,7 @@ restartsh=""
 function install(){
     if [ ! -f "$HOME/.nami/bin/nami" ] || [ ! -f "$HOME/.nami/bin/joker" ] || [ ! -f "$HOME/.nami/bin/brook" ];then
         echo
-        echo -e "$PC"'>>> bash <(curl -s https://bash.ooo/nami.sh)'"$NC"
+        echo -e "$PC"'>>> bash <(curl https://bash.ooo/nami.sh)'"$NC"
         os=""
         arch=""
         if [ $(uname -s) = "Darwin" ]; then
