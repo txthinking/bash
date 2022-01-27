@@ -19,7 +19,7 @@ lang=""
 restartsh=""
 
 function install(){
-    if [ ! -f "$HOME/.nami/bin/nami" ] || [ ! -f "$HOME/.nami/bin/joker" ] || [ ! -f "$HOME/.nami/bin/brook" ];then
+    if [ ! -f "$HOME/.nami/bin/nami" ] || [ ! -f "$HOME/.nami/bin/joker" ] || [ ! -f "$HOME/.nami/bin/brook" ] || [ `echo $PATH | grep $HOME/.nami/bin | wc -l` -eq 0 ];then
         echo
         echo -e "$PC"'>>> bash <(curl https://bash.ooo/nami.sh)'"$NC"
         os=""
