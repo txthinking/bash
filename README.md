@@ -3,6 +3,12 @@
 This repo provide a short url for your bash on Github Page with domain bash.ooo
 > 这个仓库为你的bash脚本提供一个短网址，基于 Github Page 和域名 bash.ooo
 
+## [brew](https://brew.sh)
+
+```
+bash <(curl https://bash.ooo/brew.sh)
+```
+
 ## [brook](https://github.com/txthinking/brook)
 
 ```
