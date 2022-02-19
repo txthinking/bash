@@ -211,8 +211,16 @@ function all(){
                                         test "$lang" = "zh" && read -p "输入一个端口给你的 socks5 server, 比如 9999: " port
                                         if [ -n "$ip4" ]; then
                                             echo
-                                            echo -e "$PC"">>> joker brook socks5 --socks5 $ip4:$port""$NC"
-                                            joker brook socks5 --socks5 $ip4:$port
+                                            if [ `brook -v | awk '{print $3}'` -le 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> joker brook socks5 --socks5 $ip4:$port""$NC"
+                                                joker brook socks5 --socks5 $ip4:$port
+                                            fi
+                                            if [ `brook -v | awk '{print $3}'` -gt 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> joker brook socks5 --listen :$port --socks5ServerIP $ip4""$NC"
+                                                joker brook socks5 --listen :$port --socks5ServerIP $ip4
+                                            fi
 
                                             sleep 3
 
@@ -231,8 +239,16 @@ function all(){
 
                                         if [ -z "$ip4" -a -n "$ip6" ]; then
                                             echo
-                                            echo -e "$PC"">>> joker brook socks5 --socks5 [$ip6]:$port""$NC"
-                                            joker brook socks5 --socks5 [$ip6]:$port
+                                            if [ `brook -v | awk '{print $3}'` -le 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> joker brook socks5 --socks5 [$ip6]:$port""$NC"
+                                                joker brook socks5 --socks5 [$ip6]:$port
+                                            fi
+                                            if [ `brook -v | awk '{print $3}'` -gt 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> joker brook socks5 --listen :$port --socks5ServerIP $ip6""$NC"
+                                                joker brook socks5 --listen :$port --socks5ServerIP $ip6
+                                            fi
 
                                             sleep 3
 
@@ -262,8 +278,16 @@ function all(){
                                         test "$lang" = "zh" && read -p "输入一个密码给你的 socks5 server, 比如 mypassword: " password
                                         if [ -n "$ip4" ]; then
                                             echo
-                                            echo -e "$PC"">>> joker brook socks5 --socks5 $ip4:$port --username '$username' --password '$password'""$NC"
-                                            joker brook socks5 --socks5 $ip4:$port --username "$username" --password "$password"
+                                            if [ `brook -v | awk '{print $3}'` -le 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> joker brook socks5 --socks5 $ip4:$port --username '$username' --password '$password'""$NC"
+                                                joker brook socks5 --socks5 $ip4:$port --username "$username" --password "$password"
+                                            fi
+                                            if [ `brook -v | awk '{print $3}'` -gt 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> joker brook socks5 --listen :$port --socks5ServerIP $ip4 --username '$username' --password '$password'""$NC"
+                                                joker brook socks5 --listen :$port --socks5ServerIP $ip4 --username "$username" --password "$password"
+                                            fi
 
                                             sleep 3
 
@@ -282,8 +306,16 @@ function all(){
 
                                         if [ -z "$ip4" -a -n "$ip6" ]; then
                                             echo
-                                            echo -e "$PC"">>> joker brook socks5 --socks5 [$ip6]:$port --username '$username' --password '$password'""$NC"
-                                            joker brook socks5 --socks5 [$ip6]:$port --username "$username" --password "$password"
+                                            if [ `brook -v | awk '{print $3}'` -le 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> joker brook socks5 --socks5 $ip4:$port --username '$username' --password '$password'""$NC"
+                                                joker brook socks5 --socks5 $ip4:$port --username "$username" --password "$password"
+                                            fi
+                                            if [ `brook -v | awk '{print $3}'` -gt 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> joker brook socks5 --listen :$port --socks5ServerIP $ip4 --username '$username' --password '$password'""$NC"
+                                                joker brook socks5 --listen :$port --socks5ServerIP $ip4 --username "$username" --password "$password"
+                                            fi
 
                                             sleep 3
 
@@ -414,8 +446,16 @@ function all(){
                                         test "$lang" = "zh" && read -p "输入一个端口给你的 socks5 server, 比如 9999: " port
                                         if [ -n "$ip4" ]; then
                                             echo
-                                            echo -e "$PC"">>> jinbe joker brook socks5 --socks5 $ip4:$port""$NC"
-                                            jinbe joker brook socks5 --socks5 $ip4:$port
+                                            if [ `brook -v | awk '{print $3}'` -le 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> jinbe joker brook socks5 --socks5 $ip4:$port""$NC"
+                                                jinbe joker brook socks5 --socks5 $ip4:$port
+                                            fi
+                                            if [ `brook -v | awk '{print $3}'` -gt 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> jinbe joker brook socks5 --listen :$port --socks5ServerIP $ip4""$NC"
+                                                jinbe joker brook socks5 --listen :$port --socks5ServerIP $ip4
+                                            fi
 
                                             sleep 3
 
@@ -426,8 +466,16 @@ function all(){
 
                                         if [ -z "$ip4" -a -n "$ip6" ]; then
                                             echo
-                                            echo -e "$PC"">>> jinbe joker brook socks5 --socks5 [$ip6]:$port""$NC"
-                                            jinbe joker brook socks5 --socks5 [$ip6]:$port
+                                            if [ `brook -v | awk '{print $3}'` -le 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> jinbe joker brook socks5 --socks5 [$ip6]:$port""$NC"
+                                                jinbe joker brook socks5 --socks5 [$ip6]:$port
+                                            fi
+                                            if [ `brook -v | awk '{print $3}'` -gt 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> jinbe joker brook socks5 --listen :$port --socks5ServerIP $ip6""$NC"
+                                                jinbe joker brook socks5 --listen :$port --socks5ServerIP $ip6
+                                            fi
 
                                             sleep 3
 
@@ -445,8 +493,16 @@ function all(){
                                         test "$lang" = "zh" && read -p "输入一个密码给你的 socks5 server, 比如 mypassword: " password
                                         if [ -n "$ip4" ]; then
                                             echo
-                                            echo -e "$PC"">>> jinbe joker brook socks5 --socks5 $ip4:$port --username '$username' --password '$password'""$NC"
-                                            jinbe joker brook socks5 --socks5 $ip4:$port --username "$username" --password "$password"
+                                            if [ `brook -v | awk '{print $3}'` -le 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> jinbe joker brook socks5 --socks5 $ip4:$port --username '$username' --password '$password'""$NC"
+                                                jinbe joker brook socks5 --socks5 $ip4:$port --username "$username" --password "$password"
+                                            fi
+                                            if [ `brook -v | awk '{print $3}'` -gt 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> jinbe joker brook socks5 --listen :$port --socks5ServerIP $ip4 --username '$username' --password '$password'""$NC"
+                                                jinbe joker brook socks5 --listen :$port --socks5ServerIP $ip4 --username "$username" --password "$password"
+                                            fi
 
                                             sleep 3
 
@@ -457,8 +513,16 @@ function all(){
 
                                         if [ -z "$ip4" -a -n "$ip6" ]; then
                                             echo
-                                            echo -e "$PC"">>> jinbe joker brook socks5 --socks5 [$ip6]:$port --username '$username' --password '$password'""$NC"
-                                            jinbe joker brook socks5 --socks5 [$ip6]:$port --username "$username" --password "$password"
+                                            if [ `brook -v | awk '{print $3}'` -le 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> jinbe joker brook socks5 --socks5 [$ip6]:$port --username '$username' --password '$password'""$NC"
+                                                jinbe joker brook socks5 --socks5 [$ip6]:$port --username "$username" --password "$password"
+                                            fi
+                                            if [ `brook -v | awk '{print $3}'` -gt 20210701 ]
+                                            then
+                                                echo -e "$PC"">>> jinbe joker brook socks5 --listen :$port --socks5ServerIP $ip6 --username '$username' --password '$password'""$NC"
+                                                jinbe joker brook socks5 --listen :$port --socks5ServerIP $ip6 --username "$username" --password "$password"
+                                            fi
 
                                             sleep 3
 
