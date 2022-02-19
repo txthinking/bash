@@ -174,8 +174,16 @@ function all(){
                             test "$lang" = "zh" && read -p "输入一个密码给你的 brook wssserver, 比如 mypassword: " password
 
                             echo
-                            echo -e "$PC"">>> joker brook wssserver --domain $domain --password '$password'""$NC"
-                            joker brook wssserver --domain $domain --password "$password"
+                            if [ `brook -v | awk '{print $3}'` -le 20210701 ]
+                            then
+                                echo -e "$PC"">>> joker brook wssserver --domain $domain --password '$password'""$NC"
+                                joker brook wssserver --domain $domain --password "$password"
+                            fi
+                            if [ `brook -v | awk '{print $3}'` -gt 20210701 ]
+                            then
+                                echo -e "$PC"">>> joker brook wssserver --domainaddress $domain:443 --password '$password'""$NC"
+                                joker brook wssserver --domainaddress $domain:443 --password "$password"
+                            fi
 
                             sleep 3
 
@@ -422,8 +430,16 @@ function all(){
                             test "$lang" = "zh" && read -p "输入一个密码给你的 brook wssserver, 比如 mypassword: " password
 
                             echo
-                            echo -e "$PC"">>> jinbe joker brook wssserver --domain $domain --password '$password'""$NC"
-                            jinbe joker brook wssserver --domain $domain --password "$password"
+                            if [ `brook -v | awk '{print $3}'` -le 20210701 ]
+                            then
+                                echo -e "$PC"">>> jinbe joker brook wssserver --domain $domain --password '$password'""$NC"
+                                jinbe joker brook wssserver --domain $domain --password "$password"
+                            fi
+                            if [ `brook -v | awk '{print $3}'` -gt 20210701 ]
+                            then
+                                echo -e "$PC"">>> jinbe joker brook wssserver --domainaddress $domain:443 --password '$password'""$NC"
+                                jinbe joker brook wssserver --domainaddress $domain:443 --password "$password"
+                            fi
 
                             sleep 3
 
