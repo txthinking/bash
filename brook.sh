@@ -308,13 +308,13 @@ function all(){
                                             echo
                                             if [ `brook -v | awk '{print $3}'` -le 20210701 ]
                                             then
-                                                echo -e "$PC"">>> joker brook socks5 --socks5 $ip4:$port --username '$username' --password '$password'""$NC"
-                                                joker brook socks5 --socks5 $ip4:$port --username "$username" --password "$password"
+                                                echo -e "$PC"">>> joker brook socks5 --socks5 [$ip6]:$port --username '$username' --password '$password'""$NC"
+                                                joker brook socks5 --socks5 [$ip6]:$port --username "$username" --password "$password"
                                             fi
                                             if [ `brook -v | awk '{print $3}'` -gt 20210701 ]
                                             then
-                                                echo -e "$PC"">>> joker brook socks5 --listen :$port --socks5ServerIP $ip4 --username '$username' --password '$password'""$NC"
-                                                joker brook socks5 --listen :$port --socks5ServerIP $ip4 --username "$username" --password "$password"
+                                                echo -e "$PC"">>> joker brook socks5 --listen :$port --socks5ServerIP $ip6 --username '$username' --password '$password'""$NC"
+                                                joker brook socks5 --listen :$port --socks5ServerIP $ip6 --username "$username" --password "$password"
                                             fi
 
                                             sleep 3
