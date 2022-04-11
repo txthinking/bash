@@ -94,7 +94,7 @@ var letsgo = async () => {
                         anwser: lang("I want to run brook server"),
                         action: async () => {
                             var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`)).trim()) {
+                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
                                 echo(lang("This port is occupied!"));
                                 exit(1);
                             }
@@ -118,7 +118,7 @@ var letsgo = async () => {
                         anwser: lang("I want to run brook wsserver"),
                         action: async () => {
                             var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`)).trim()) {
+                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
                                 echo(lang("This port is occupied!"));
                                 exit(1);
                             }
@@ -139,7 +139,7 @@ var letsgo = async () => {
                     {
                         anwser: lang("I want to run brook wssserver"),
                         action: async () => {
-                            if ((await sh1(`lsof -i:80`)).trim()) {
+                            if ((await sh1(`lsof -i:80`).catch((e) => "")).trim()) {
                                 echo(lang("Port 80 is occupied!"));
                                 exit(1);
                             }
@@ -149,7 +149,7 @@ var letsgo = async () => {
                                 exit(1);
                             }
                             var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`)).trim()) {
+                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
                                 echo(lang("This port is occupied!"));
                                 exit(1);
                             }
@@ -165,7 +165,7 @@ var letsgo = async () => {
                     {
                         anwser: lang("I want to run brook wssserver withoutBrookProtocol"),
                         action: async () => {
-                            if ((await sh1(`lsof -i:80`)).trim()) {
+                            if ((await sh1(`lsof -i:80`).catch((e) => "")).trim()) {
                                 echo(lang("Port 80 is occupied!"));
                                 exit(1);
                             }
@@ -175,7 +175,7 @@ var letsgo = async () => {
                                 exit(1);
                             }
                             var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`)).trim()) {
+                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
                                 echo(lang("This port is occupied!"));
                                 exit(1);
                             }
@@ -193,7 +193,7 @@ var letsgo = async () => {
                         action: async () => {
                             var ip = ip4 ? ip4 : ip6;
                             var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`)).trim()) {
+                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
                                 echo(lang("This port is occupied!"));
                                 exit(1);
                             }
@@ -210,7 +210,7 @@ var letsgo = async () => {
                         action: async () => {
                             var ip = ip4 ? ip4 : ip6;
                             var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`)).trim()) {
+                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
                                 echo(lang("This port is occupied!"));
                                 exit(1);
                             }
