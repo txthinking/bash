@@ -8,6 +8,10 @@ if [ $(uname -s) = "Darwin" ]; then
 fi
 if [ $(uname -s) = "Linux" ]; then
     os="linux"
+    if [ `cat /etc/*elease 2>/dev/null | grep 'CentOS Linux 7' | wc -l` -eq 1 ]; then
+        echo "Requires CentOS version >= 8"
+        exit;
+    fi
 fi
 if [ $(uname -s | grep "MINGW" | wc -l) -eq 1 ]; then
     os="windows"
