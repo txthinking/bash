@@ -1,18 +1,6 @@
 import { sh1, sh, s2b, b2s, home, splithostport, joinhostport, which, what, echo, log, sleep, now, exit } from "https://raw.githubusercontent.com/txthinking/denolib/master/f.js";
 import { parse } from "https://deno.land/std@0.130.0/flags/mod.ts";
 
-if (parse(Deno.args).v) {
-    echo("v20220411");
-    exit(0);
-}
-
-var ip4 = (await sh1("curl -s -4 ipip.ooo").catch((e) => "")).trim();
-var ip6 = (await sh1("curl -s -6 ipip.ooo").catch((e) => "")).trim();
-if (!ip4 && !ip6) {
-    log("Can not find your server public IP");
-    exit(1);
-}
-
 var i18n = {
     "Choose what you want to do: ": {
         zh: "选择你想做什么: ",
@@ -81,8 +69,21 @@ var i18n = {
         zh: "选择你要停止的命令 ID",
     },
 };
+
 var language = "";
 var lang = (s) => (i18n[s] ? i18n[s][language] ?? s : s);
+
+if (parse(Deno.args).v) {
+    echo("v20220411");
+    exit(0);
+}
+
+var ip4 = (await sh1("curl -s -4 ipip.ooo").catch((e) => "")).trim();
+var ip6 = (await sh1("curl -s -6 ipip.ooo").catch((e) => "")).trim();
+if (!ip4 && !ip6) {
+    log("Can not find your server public IP");
+    exit(1);
+}
 
 var letsgo = async () => {
     await which(lang("Choose what you want to do: "), [
