@@ -20,7 +20,10 @@ if [ ! -f "$HOME/.nami/bin/nami" ] || [ ! -f "$HOME/.nami/bin/joker" ] || [ ! -f
 	echo 'export PATH=$HOME/.nami/bin:$PATH' >> $HOME/.bash_profile
 	echo 'export PATH=$HOME/.nami/bin:$PATH' >> $HOME/.zshenv
 	export PATH=$HOME/.nami/bin:$PATH
-	nami install joker brook brookscript jq
+	nami install joker
+	nami install brook
+	nami install brookscript
+	nami install jq
 	restartsh="todo"
 fi
 
