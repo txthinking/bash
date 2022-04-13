@@ -74,7 +74,7 @@ var language = "";
 var lang = (s) => (i18n[s] ? i18n[s][language] ?? s : s);
 
 if (parse(Deno.args).v) {
-    echo("v20220411");
+    echo("v20220413");
     exit(0);
 }
 
