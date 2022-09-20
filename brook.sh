@@ -4,7 +4,10 @@ if [ "$(uname -s)" != "Linux" ];then
     echo "This script only support Linux";
     exit;
 fi
-
+if [ "$(uname -m)" != "x86_64" ]; then
+    echo "This script only support amd64";
+    exit;
+fi
 if [ `cat /etc/*elease 2>/dev/null | grep 'CentOS Linux 7' | wc -l` -eq 1 ]
 then
     echo "Requires CentOS version >= 8";
