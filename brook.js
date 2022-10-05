@@ -78,8 +78,8 @@ if (parse(Deno.args).v) {
     exit(0);
 }
 
-var ip4 = (await sh1("curl -s -4 ipip.ooo").catch((e) => "")).trim();
-var ip6 = (await sh1("curl -s -6 ipip.ooo").catch((e) => "")).trim();
+var ip4 = (await sh1("curl -s -4 http3.ooo").catch((e) => "")).trim();
+var ip6 = (await sh1("curl -s -6 http3.ooo").catch((e) => "")).trim();
 if (!ip4 && !ip6) {
     log("Can not find your server public IP");
     exit(1);
