@@ -57,7 +57,7 @@ Please select area:`)
     throw 'again'
 }, 0, 10)
 
-var app = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(email.trim())))).map(byte => byte.toString(16).padStart(2, '0')).join('')
+var app = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-1", new TextEncoder().encode(email.trim())))).map(byte => byte.toString(16).padStart(2, '0')).join('')
 var password = await retry(() => {
     var s = question(zh ? '请设置 brook wsserver 密码：' : 'Please type a password for brook wsserver:')
     if(s && s.trim()) return s.trim()
