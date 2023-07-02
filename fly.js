@@ -64,9 +64,12 @@ var password = await retry(() => {
     throw 'again'
 }, 0, 10)
 
+$`rm -rf _`
+$`mkdir _`
+cd('_')
+
 try{ $(`flyctl app destroy ${app} -y > /dev/null 2>&1`) }catch(e){}
 $(`flyctl app create ${app}`)
-
 var docker = `
 FROM golang:1.19
 
@@ -77,7 +80,7 @@ EXPOSE 8080
 
 ENTRYPOINT ["/brook"]
 `
-await writefile(`Dockerfile`, docker)
+await writefile(`_/Dockerfile`, docker)
 
 var toml = `
 app = "${app}"
@@ -100,16 +103,17 @@ primary_region = "${region}"
 [experimental]
     entrypoint = ["/brook", "wsserver", "--listen", ":8080", "--password", "${password}"]
 `
-await writefile(`fly.toml`, toml)
+await writefile(`_/fly.toml`, toml)
 
 $`flyctl deploy --ha=false --remote-only --wait-timeout=600`
-$`rm -rf Dockerfile`
-$`rm -rf fly.toml`
 
 var s = $1(`flyctl ip list -a ${app} --json`)
 var ip = JSON.parse(s).find(v=>v.Type == 'v6').Address
 var brook_wsserver_link = $1(`brook link -s ws://${app}.fly.dev:80 -p "${password}" --address [${ip}]:80`)
 var brook_wssserver_link = $1(`brook link -s wss://${app}.fly.dev:443 -p "${password}" --address [${ip}]:443`)
+
+cd('..')
+$`rm -rf _`
 
 echo(zh ? '你的 brook link：' : 'Your brook link:')
 echo(brook_wsserver_link)
