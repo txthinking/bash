@@ -52,7 +52,7 @@ var region = await retry(() => {
 8. Australia
 9. Canada
 Please select area:`)
-    var v = ['ams', 'cdg', 'hkg', 'lhr', 'nrt', 'scl', 'sin', 'sjc', 'syd'][n]
+    var v = ['ams', 'cdg', 'hkg', 'lhr', 'nrt', 'scl', 'sin', 'sjc', 'syd', 'yyz'][n]
     if(v) return v
     throw 'again'
 }, 0, 10)
