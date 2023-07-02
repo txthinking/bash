@@ -23,8 +23,7 @@ bash <(curl https://bash.ooo/nami.sh)
 
 ## [fly.js](https://github.com/txthinking/jb)
 此脚本一键式帮助你在 fly.io 免费部署一个 brook, 无需你去 fly.io 网站进行任何操作。重新部署只需要再次运行脚本即可。
-> This script helps you deploy a brook on fly.io interactively for free, without you needin
-g to go to the fly.io website for any operations. Redeploying simply requires running the script again.
+> This script helps you deploy a brook on fly.io for free, no need to go to the fly.io website for any operations.
 ```
 jb https://bash.ooo/fly.js
 ```
