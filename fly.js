@@ -109,8 +109,8 @@ $`flyctl deploy --ha=false --remote-only --wait-timeout=600`
 
 var s = $1(`flyctl ip list -a ${app} --json`)
 var ip = JSON.parse(s).find(v=>v.Type == 'v6').Address
-var brook_wsserver_link = $1(`brook link -s ws://${app}.fly.dev:80 -p "${password}" --address [${ip}]:80`)
-var brook_wssserver_link = $1(`brook link -s wss://${app}.fly.dev:443 -p "${password}" --address [${ip}]:443`)
+var brook_wsserver_link = $1(`brook link -s ws://${app}.fly.dev:80 -p "${password}" --address [${ip}]:80 --name fly.ipv6.ws`)
+var brook_wssserver_link = $1(`brook link -s wss://${app}.fly.dev:443 -p "${password}" --address [${ip}]:443 --name fly.ipv6.wss`)
 
 cd('..')
 $`rm -rf _`
