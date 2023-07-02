@@ -30,25 +30,27 @@ try{
 
 var region = await retry(() => {
     var n = question(zh ? `
-1. 荷兰
-2. 法国
-3. 香港
-4. 英国
-5. 日本
-6. 智利
-7. 新加坡
-8. 美国
-9. 澳大利亚
+0. 荷兰
+1. 法国
+2. 香港
+3. 英国
+4. 日本
+5. 智利
+6. 新加坡
+7. 美国
+8. 澳大利亚
+9. 加拿大
 请选择地区：`:`
-1. Netherlands
-2. France
-3. Hong Kong
-4. United Kingdom
-5. Japan
-6. Chile
-7. Singapore
-8. United States
-9. Australia
+0. Netherlands
+1. France
+2. Hong Kong
+3. United Kingdom
+4. Japan
+5. Chile
+6. Singapore
+7. United States
+8. Australia
+9. Canada
 Please select area:`)
     var v = ['ams', 'cdg', 'hkg', 'lhr', 'nrt', 'scl', 'sin', 'sjc', 'syd'][n]
     if(v) return v
