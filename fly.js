@@ -102,7 +102,7 @@ primary_region = "${region}"
 `
 await writefile(`fly.toml`, toml)
 
-$`flyctl deploy --ha=false --remote-only --wait-timeout=300`
+$`flyctl deploy --ha=false --remote-only --wait-timeout=600`
 $`rm -rf Dockerfile`
 $`rm -rf fly.toml`
 
