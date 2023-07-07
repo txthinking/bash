@@ -20,7 +20,7 @@ if(!which('brook')){
 try{
     var email = $1`flyctl auth whoami 2>/dev/null`
 }catch(e){
-    var ok = confirm(zh ? '你需要认证一下你的 GitHub，无需任何其他操作，然后回到这里' : 'You need to authenticate your GitHub, do nothing else, then come back here')
+    var ok = confirm(zh ? '你需要认证一下你的 GitHub，是否需要绑卡验证取决于你的 GitHub 质量，无需任何其他操作，然后回到这里' : 'You need to authenticate your GitHub, whether card binding verification is required depends on the quality of your GitHub, do nothing else, then come back here')
     if(!ok){
         exit(1)
     }
@@ -58,19 +58,63 @@ Please select area:`)
 }, 0, 10)
 
 var app = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-1", new TextEncoder().encode(email.trim())))).map(byte => byte.toString(16).padStart(2, '0')).join('')
-var password = await retry(() => {
-    var s = question(zh ? '请设置 brook wsserver 密码：' : 'Please type a password for brook wsserver:')
-    if(s && s.trim()) return s.trim()
-    throw 'again'
-}, 0, 10)
 
 $`rm -rf _`
 $`mkdir _`
 cd('_')
-
 try{ $(`flyctl app destroy ${app} -y > /dev/null 2>&1`) }catch(e){}
 $(`flyctl app create ${app}`)
-var docker = `
+var kind = question(`
+1. server
+2. wsserver
+3. wssserver
+`)
+var port = 0;
+if(kind != 2 && kind != 3){
+    port = await retry(() => {
+        var s = question(zh ? '请设置端口：' : 'Please type a port:')
+        if(parseInt(s.trim())>0) return s.trim()
+        throw 'again'
+    }, 0, 10)
+}
+var password = await retry(() => {
+    var s = question(zh ? '请设置密码：' : 'Please type a password:')
+    if(s && s.trim()) return s.trim()
+    throw 'again'
+}, 0, 10)
+await writefile(`_/Dockerfile`, `
+FROM golang:1.19
+
+RUN git clone https://github.com/txthinking/brook.git
+RUN cd brook/cli/brook && CGO_ENABLED=0 GOOS=linux go build -o /brook
+
+EXPOSE ${port}
+
+ENTRYPOINT ["/brook"]
+`)
+await writefile(`_/fly.toml`, `
+app = "${app}"
+primary_region = "${region}"
+
+[[services]]
+  internal_port = ${port}
+  protocol = "udp"
+
+  [[services.ports]]
+    port = "${port}"
+
+[[services]]
+  internal_port = ${port}
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = "${port}"
+
+[experimental]
+    entrypoint = ["/brook", "server", "--listen", ":${port}", "--password", "${password}"]
+`)
+if(kind == 2 || kind == 3){
+await writefile(`_/Dockerfile`, `
 FROM golang:1.19
 
 RUN git clone https://github.com/txthinking/brook.git
@@ -79,10 +123,8 @@ RUN cd brook/cli/brook && CGO_ENABLED=0 GOOS=linux go build -o /brook
 EXPOSE 8080
 
 ENTRYPOINT ["/brook"]
-`
-await writefile(`_/Dockerfile`, docker)
-
-var toml = `
+`)
+await writefile(`_/fly.toml`, `
 app = "${app}"
 primary_region = "${region}"
 
@@ -102,19 +144,26 @@ primary_region = "${region}"
 
 [experimental]
     entrypoint = ["/brook", "wsserver", "--listen", ":8080", "--password", "${password}"]
-`
-await writefile(`_/fly.toml`, toml)
-
+`)
+}
 $`flyctl deploy --ha=false --remote-only --wait-timeout=600`
-
-var s = $1(`flyctl ip list -a ${app} --json`)
-var ip = JSON.parse(s).find(v=>v.Type == 'v6').Address
-var brook_wsserver_link = $1(`brook link -s ws://${app}.fly.dev:80 -p "${password}" --address [${ip}]:80 --name fly.ipv6.ws`)
-var brook_wssserver_link = $1(`brook link -s wss://${app}.fly.dev:443 -p "${password}" --address [${ip}]:443 --name fly.ipv6.wss`)
-
 cd('..')
 $`rm -rf _`
 
-echo(zh ? '你的 brook link：' : 'Your brook link:')
-echo(brook_wsserver_link)
-echo(brook_wssserver_link)
+if(kind != 2 && kind != 3){
+    $(`flyctl ip allocate-v6 -a ${app}`)
+}
+var s = $1(`flyctl ip list -a ${app} --json`)
+var ip = JSON.parse(s).find(v=>v.Type == 'v6').Address
+if(kind != 2 && kind != 3){
+    var brook_server_link_udpovertcp = $1(`brook link -s [${ip}]:${port} -p "${password}" --udpovertcp --name fly.ipv6.s.udpovertcp`)
+    echo(zh ? '你的 brook link：' : 'Your brook link:')
+    echo(brook_server_link_udpovertcp)
+}
+if(kind == 2 || kind == 3){
+    var brook_wsserver_link = $1(`brook link -s ws://${app}.fly.dev:80 -p "${password}" --address [${ip}]:80 --name fly.ipv6.ws`)
+    var brook_wssserver_link = $1(`brook link -s wss://${app}.fly.dev:443 -p "${password}" --address [${ip}]:443 --name fly.ipv6.wss`)
+    echo(zh ? '你的 brook link：' : 'Your brook link:')
+    echo(brook_wsserver_link)
+    echo(brook_wssserver_link)
+}
