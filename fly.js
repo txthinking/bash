@@ -82,6 +82,7 @@ var password = await retry(() => {
     if(s && s.trim()) return s.trim()
     throw 'again'
 }, 0, 10)
+
 await writefile(`_/Dockerfile`, `
 FROM golang:1.19
 
@@ -92,6 +93,33 @@ EXPOSE ${port}
 
 ENTRYPOINT ["/brook"]
 `)
+
+if(kind == 2){
+await writefile(`_/Dockerfile`, `
+FROM golang:1.19
+
+RUN git clone https://github.com/txthinking/brook.git
+RUN cd brook/cli/brook && CGO_ENABLED=0 GOOS=linux go build -o /brook
+
+EXPOSE 80
+
+ENTRYPOINT ["/brook"]
+`)
+}
+
+if(kind == 3){
+await writefile(`_/Dockerfile`, `
+FROM golang:1.19
+
+RUN git clone https://github.com/txthinking/brook.git
+RUN cd brook/cli/brook && CGO_ENABLED=0 GOOS=linux go build -o /brook
+
+EXPOSE 8080
+
+ENTRYPOINT ["/brook"]
+`)
+}
+
 await writefile(`_/fly.toml`, `
 app = "${app}"
 primary_region = "${region}"
@@ -113,17 +141,25 @@ primary_region = "${region}"
 [experimental]
     entrypoint = ["/brook", "server", "--listen", ":${port}", "--password", "${password}"]
 `)
-if(kind == 2 || kind == 3){
-await writefile(`_/Dockerfile`, `
-FROM golang:1.19
 
-RUN git clone https://github.com/txthinking/brook.git
-RUN cd brook/cli/brook && CGO_ENABLED=0 GOOS=linux go build -o /brook
+if(kind == 2){
+await writefile(`_/fly.toml`, `
+app = "${app}"
+primary_region = "${region}"
 
-EXPOSE 8080
+[[services]]
+  internal_port = 80
+  protocol = "tcp"
 
-ENTRYPOINT ["/brook"]
+  [[services.ports]]
+    port = "80"
+
+[experimental]
+    entrypoint = ["/brook", "wsserver", "--listen", ":80", "--password", "${password}"]
 `)
+}
+
+if(kind == 3){
 await writefile(`_/fly.toml`, `
 app = "${app}"
 primary_region = "${region}"
@@ -146,11 +182,12 @@ primary_region = "${region}"
     entrypoint = ["/brook", "wsserver", "--listen", ":8080", "--password", "${password}"]
 `)
 }
+
 $`flyctl deploy --ha=false --remote-only --wait-timeout=600`
 cd('..')
 $`rm -rf _`
 
-if(kind != 2 && kind != 3){
+if(kind != 3){
     $(`flyctl ip allocate-v6 -a ${app}`)
 }
 var s = $1(`flyctl ip list -a ${app} --json`)
@@ -160,10 +197,13 @@ if(kind != 2 && kind != 3){
     echo(zh ? '你的 brook link：' : 'Your brook link:')
     echo(brook_server_link_udpovertcp)
 }
-if(kind == 2 || kind == 3){
-    var brook_wsserver_link = $1(`brook link -s ws://${app}.fly.dev:80 -p "${password}" --address [${ip}]:80 --name fly.ipv6.ws`)
-    var brook_wssserver_link = $1(`brook link -s wss://${app}.fly.dev:443 -p "${password}" --address [${ip}]:443 --name fly.ipv6.wss`)
+if(kind == 2){
+    var brook_wsserver_link = $1(`brook link -s ws://[${ip}]:80 -p "${password}" --address [${ip}]:80 --name fly.ipv6.ws`)
     echo(zh ? '你的 brook link：' : 'Your brook link:')
     echo(brook_wsserver_link)
+}
+if(kind == 3){
+    var brook_wssserver_link = $1(`brook link -s wss://${app}.fly.dev:443 -p "${password}" --address [${ip}]:443 --name fly.ipv6.wss`)
+    echo(zh ? '你的 brook link：' : 'Your brook link:')
     echo(brook_wssserver_link)
 }
