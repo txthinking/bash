@@ -57,7 +57,6 @@ for (var i=0; i<l.length; i++){
     var s = b+'.'+a
     if(a == 'cn'){
         s = 'cn'
-        continue
     }
     if(m[s]){
         continue
