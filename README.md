@@ -27,6 +27,12 @@ bash <(curl https://bash.ooo/nami.sh)
 ```
 jb https://bash.ooo/fly.js
 ```
+
+## [china_domain_check.js](https://github.com/txthinking/jb)
+自动判断出哪些是中国大陆域名
+```
+jb https://bash.ooo/china_domain_check.js
+```
 ---
 
 PR welcome for any bash
