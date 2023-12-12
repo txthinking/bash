@@ -84,11 +84,10 @@ var password = await retry(() => {
 }, 0, 10)
 
 await writefile(`_/Dockerfile`, `
-FROM golang:1.21.3-alpine
+FROM alpine
 
-RUN apk add git
-RUN git clone https://github.com/txthinking/brook.git
-RUN cd brook/cli/brook && CGO_ENABLED=0 GOOS=linux go build -o /brook
+RUN wget -O /brook https://github.com/txthinking/brook/releases/latest/download/brook_linux_amd64
+RUN chmod +x /brook
 
 EXPOSE ${port}
 
@@ -97,11 +96,10 @@ ENTRYPOINT ["/brook"]
 
 if(kind == 2){
 await writefile(`_/Dockerfile`, `
-FROM golang:1.21.3-alpine
+FROM alpine
 
-RUN apk add git
-RUN git clone https://github.com/txthinking/brook.git
-RUN cd brook/cli/brook && CGO_ENABLED=0 GOOS=linux go build -o /brook
+RUN wget -O /brook https://github.com/txthinking/brook/releases/latest/download/brook_linux_amd64
+RUN chmod +x /brook
 
 EXPOSE 80
 
@@ -111,11 +109,10 @@ ENTRYPOINT ["/brook"]
 
 if(kind == 3){
 await writefile(`_/Dockerfile`, `
-FROM golang:1.21.3-alpine
+FROM alpine
 
-RUN apk add git
-RUN git clone https://github.com/txthinking/brook.git
-RUN cd brook/cli/brook && CGO_ENABLED=0 GOOS=linux go build -o /brook
+RUN wget -O /brook https://github.com/txthinking/brook/releases/latest/download/brook_linux_amd64
+RUN chmod +x /brook
 
 EXPOSE 8080
 
