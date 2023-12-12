@@ -84,7 +84,7 @@ var password = await retry(() => {
 }, 0, 10)
 
 await writefile(`_/Dockerfile`, `
-FROM golang:1.19
+FROM golang:1.21.3
 
 RUN git clone https://github.com/txthinking/brook.git
 RUN cd brook/cli/brook && CGO_ENABLED=0 GOOS=linux go build -o /brook
@@ -96,7 +96,7 @@ ENTRYPOINT ["/brook"]
 
 if(kind == 2){
 await writefile(`_/Dockerfile`, `
-FROM golang:1.19
+FROM golang:1.21.3
 
 RUN git clone https://github.com/txthinking/brook.git
 RUN cd brook/cli/brook && CGO_ENABLED=0 GOOS=linux go build -o /brook
@@ -109,7 +109,7 @@ ENTRYPOINT ["/brook"]
 
 if(kind == 3){
 await writefile(`_/Dockerfile`, `
-FROM golang:1.19
+FROM golang:1.21.3
 
 RUN git clone https://github.com/txthinking/brook.git
 RUN cd brook/cli/brook && CGO_ENABLED=0 GOOS=linux go build -o /brook
