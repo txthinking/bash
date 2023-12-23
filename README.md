@@ -1,9 +1,9 @@
 # [bash.ooo](https://github.com/txthinking/bash)
 
-## [brew](https://brew.sh)
+## [nami](https://github.com/txthinking/nami)
 
 ```
-bash <(curl https://bash.ooo/brew.sh)
+bash <(curl https://bash.ooo/nami.sh)
 ```
 
 ## [brook](https://github.com/txthinking/brook)
@@ -12,10 +12,10 @@ bash <(curl https://bash.ooo/brew.sh)
 bash <(curl https://bash.ooo/brook.sh)
 ```
 
-## [nami](https://github.com/txthinking/nami)
+## [brew](https://brew.sh)
 
 ```
-bash <(curl https://bash.ooo/nami.sh)
+bash <(curl https://bash.ooo/brew.sh)
 ```
 
 ## [fly.js](https://github.com/txthinking/jb)
@@ -29,4 +29,11 @@ jb https://bash.ooo/fly.js
 自动生成自用的中国大陆域名列表
 ```
 jb https://bash.ooo/china.js
+```
+
+## [appid.js](https://github.com/txthinking/jb)
+从 macOS app 中读取 appid
+> Get appid from macOS app
+```
+jb https://bash.ooo/appid.js
 ```
