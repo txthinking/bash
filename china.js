@@ -176,28 +176,37 @@ function get_todo() {
         $`chmod +x /tmp/brook`
     }
 
-    var s = ""
+    var l = []
     if (process.argv[2] != 'auto') {
-        s = process.argv[2]
-    }
-    if (!s && global.exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log")) {
-        s = os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log"
-    }
-    if (!s && global.exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log")) {
-        s = os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log"
-    }
-    if (!s && global.exists(os.homedir() + "/.b.log")) {
-        s = os.homedir() + "/.b.log"
-    }
-    if (s) {
-        s = read_file(s)
+        var s = read_file(process.argv[2])
         if (s && s.trim()) {
-            var l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
-            return [...new Set(l)]
+            l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+        }
+    } else {
+        if (global.exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log")) {
+            var s = read_file(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log")
+            if (s && s.trim()) {
+                l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+            }
+        }
+        if (global.exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log")) {
+            var s = read_file(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log")
+            if (s && s.trim()) {
+                l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+            }
+        }
+        if (global.exists(os.homedir() + "/.b.log")) {
+            var s = read_file(os.homedir() + "/.b.log")
+            if (s && s.trim()) {
+                l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+            }
         }
     }
-    echo('没有发现任何 Brook 或 Shiliew 的日志，是最新版吗？先运行一段时间吧')
-    exit(1)
+    if (!l.length) {
+        echo('没有发现任何 Brook 或 Shiliew 的日志，是最新版吗？先运行一段时间吧')
+        exit(1)
+    }
+    return [...new Set(l)]
 }
 
 if (process.argv.length == 3) {
