@@ -25,6 +25,135 @@ if (process.argv.length == 3 && process.argv[2] == 'list') {
     exit()
 }
 
+if (process.argv.length == 3 && process.argv[2] == 'module') {
+    var r = db.query('select * from cn where iscn=1').all();
+    var i = 0
+    var s = ""
+    var l = []
+    r.map(v => v.domain).forEach(v => {
+        l.push(`"${v}": true,`)
+        i++
+        if (i == 200) {
+            s += `
+        l = {
+${l.join("\n").slice(0, -1)}
+        }
+        r = f(m.domain, l)
+        if r != undefined {
+            return r
+        }
+`
+            i = 0
+            l = []
+        }
+    })
+    if (l.length) {
+        s += `
+        l = {
+${l.join("\n").slice(0, -1)}
+        }
+        r = f(m.domain, l)
+        if r != undefined {
+            return r
+        }
+`
+    }
+    s = `
+modules = append(modules, {
+    dnsquery: func(m) {
+        text := import("text")
+        f := func(domain, l){
+            ss := text.split(text.to_lower(domain), ".")
+            s := ""
+            for i := len(ss) - 1; i >= 0; i-- {
+                if s == "" {
+                    s = ss[i]
+                } else {
+                    s = ss[i] + "." + s
+                }
+                if l[s] {
+                    return { bypass: true }
+                }
+            }
+        }
+        l := undefined
+        r := undefined
+        ${s}
+    }
+})
+`
+    echo(s)
+    exit()
+}
+
+if (process.argv.length == 3 && process.argv[2] == 'module_a') {
+    var r = db.query('select * from cn where iscn=1').all();
+    var i = 0
+    var s = ""
+    var l = []
+    r.map(v => v.domain).forEach(v => {
+        l.push(`"${v}": true,`)
+        i++
+        if (i == 200) {
+            s += `
+            l = {
+${l.join("\n").slice(0, -1)}
+            }
+            r = f(hp.host, l)
+            if r != undefined {
+                return r
+            }
+`
+            i = 0
+            l = []
+        }
+    })
+    if (l.length) {
+        s += `
+            l = {
+${l.join("\n").slice(0, -1)}
+            }
+            r = f(hp.host, l)
+            if r != undefined {
+                return r
+            }
+`
+    }
+    s = `
+modules = append(modules, {
+    address: func(m) {
+        if m.domainaddress {
+            brook := import("brook")
+            hp := brook.splithostport(m.domainaddress)
+            if is_error(hp) {
+                return hp
+            }
+            text := import("text")
+            f := func(domain, l){
+                ss := text.split(text.to_lower(domain), ".")
+                s := ""
+                for i := len(ss) - 1; i >= 0; i-- {
+                    if s == "" {
+                        s = ss[i]
+                    } else {
+                        s = ss[i] + "." + s
+                    }
+                    if l[s] {
+                        return { ipaddressfrombypassdns: "A", bypass: true }
+                    }
+                }
+            }
+            l := undefined
+            r := undefined
+            ${s}
+        }
+    }
+})
+`
+    echo(s)
+    exit()
+}
+
 function get_domain(addr) {
     if (addr.indexOf(':') == -1) {
         return addr
@@ -47,33 +176,31 @@ function get_todo() {
         $`chmod +x /tmp/brook`
     }
 
-    var l = []
-    if (global.exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log")) {
-        var s = read_file(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log")
+    var s = ""
+    if (process.argv[2] != 'auto') {
+        s = process.argv[2]
+    }
+    if (!s && global.exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log")) {
+        s = os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log"
+    }
+    if (!s && global.exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log")) {
+        s = os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log"
+    }
+    if (!s && global.exists(os.homedir() + "/.b.log")) {
+        s = os.homedir() + "/.b.log"
+    }
+    if (s) {
+        s = read_file(s)
         if (s && s.trim()) {
-            l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+            var l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+            return [...new Set(l)]
         }
     }
-    if (global.exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log")) {
-        var s = read_file(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log")
-        if (s && s.trim()) {
-            l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
-        }
-    }
-    if (global.exists(os.homedir() + "/.b.log")) {
-        var s = read_file(os.homedir() + "/.b.log")
-        if (s && s.trim()) {
-            l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
-        }
-    }
-    if (!l.length) {
-        echo('没有发现任何 Brook 或 Shiliew 的日志，是最新版吗？先运行一段时间吧')
-        exit(1)
-    }
-    return [...new Set(l)]
+    echo('没有发现任何 Brook 或 Shiliew 的日志，是最新版吗？先运行一段时间吧')
+    exit(1)
 }
 
-if (process.argv.length == 3 && process.argv[2] == 'check') {
+if (process.argv.length == 3) {
     var l = get_todo()
     echo('todo', l.length)
     for (var i = 0; i < l.length; i++) {
@@ -119,15 +246,18 @@ if (process.argv.length == 3 && process.argv[2] == 'check') {
 }
 
 echo(`
-从 Brook 或 Shiliew 的日常日志里自动增量(比如隔几天运行一次)生成自用的国内域名列表:
+从 Brook 或 Shiliew 的日常日志里自动增量生成自用的 bypass 模块:
 
-jb https://bash.ooo/china.js check
+jb https://bash.ooo/china.js auto
+或
+jb https://bash.ooo/china.js /path/to/log/file
 
-当然因为运行需要时间，可以用 joker 后台运行
+生成模块:
 
-joker jb https://bash.ooo/china.js check
-
-查看自己日积月累的列表:
-
+jb https://bash.ooo/china.js module
+或
+jb https://bash.ooo/china.js module_a
+或
 jb https://bash.ooo/china.js list
+
 `)
