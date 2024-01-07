@@ -37,3 +37,10 @@ jb https://bash.ooo/china.js
 ```
 jb https://bash.ooo/appid.js
 ```
+
+## [import.js](https://github.com/txthinking/jb)
+Brook导入链接生成器，限制次数，设置过期时间，限制浏览器访问
+> Brook Import Link Generator, limit times, expiration time, restrict browser access.
+```
+jb https://bash.ooo/import.js
+```
