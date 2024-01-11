@@ -120,9 +120,9 @@ const { program } = require('commander')
 program
     .name('jb https://bash.ooo/import.js')
     .description('Brook Import Link Generator, limit times, expiration time, restrict browser access. ')
-    .option('--ip <string>', 'listen ip, default: 127.0.0.1', '127.0.0.1')
-    .option('--port <int>', 'listen port, default: 40107', 40107)
-    .option('--nobrowser', 'do not allow browser to access brook links directly', false)
+    .option('--ip <string>', 'listen ip', '127.0.0.1')
+    .option('--port <int>', 'listen port', 40107)
+    .option('--browser', 'allow browser to access brook links directly', false)
     .option('--key <string>', 'Google reCAPTCHA v3 key, optional', '')
     .option('--secret <string>', 'Google reCAPTCHA v3 secret, optional', '')
 program.parse();
@@ -185,7 +185,7 @@ Bun.serve({
                 return new Response(j.uuid);
             }
             if (p == "/get") {
-                if (options.nobrowser) {
+                if (!options.browser) {
                     if (req.headers.get('User-Agent').indexOf('Go-http-client/') == -1 && req.headers.get('User-Agent').indexOf('Dart/') == -1) {
                         var s = req.headers.get('Accept-Language').indexOf('zh-') == -1 ? 'You need Brook to import this link' : '你需要 Brook 客户端来导入此链接'
                         throw s
