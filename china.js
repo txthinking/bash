@@ -349,9 +349,7 @@ for (var i = 0; i < l.length; i++) {
         continue
     }
     try {
-        echo(d)
         var l1 = await retry(() => options.how == 'A' ? get_cn_domain_with_global_dns(d) : get_cn_domain_with_china_dns(d), 1000, 2)
-        echo(l1)
         if (l1) {
             l1.forEach(v => {
                 var r = db.query('select * from cn where domain=?').get(v);
