@@ -121,12 +121,16 @@ program
     .name('jb https://bash.ooo/import.js')
     .description('Brook Import Link Generator, limit times, expiration time, restrict browser access. ')
     .option('--ip <string>', 'listen ip', '127.0.0.1')
-    .option('--port <int>', 'listen port', 40107)
+    .option('--port <int>', 'listen port', 0)
     .option('--browser', 'allow browser to access brook links directly', false)
     .option('--key <string>', 'Google reCAPTCHA v3 key, optional', '')
     .option('--secret <string>', 'Google reCAPTCHA v3 secret, optional', '')
 program.parse();
 const options = program.opts();
+
+if (!options.port) {
+    program.help()
+}
 
 var sdb = new Database(os.homedir() + "/.import.db", { create: true });
 var l = sdb.query(`SELECT name FROM sqlite_master WHERE type='table'`).all();
