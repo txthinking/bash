@@ -350,7 +350,7 @@ if (options.delete) {
 }
 
 if (options.table) {
-    var r = db.query('select * from cn').values();
+    var r = db.query('select * from cn').all();
     r.sort((a, b) => a.domain > b.domain)
     const { printTable } = require('console-table-printer');
     printTable(r)
