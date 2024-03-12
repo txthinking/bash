@@ -6,7 +6,7 @@ if (process.argv.length < 3) {
 static/
 └── hello.txt
 
-$ jb https://bash.ooo/bundle.js /absolute/path/static bundle.js
+$ jb https://bash.ooo/bundle.js static bundle.js
 
 import readFileSync from './bundle.js';
 var data = readFileSync("static/hello.txt"); // Uint8Array
@@ -14,7 +14,7 @@ var data = readFileSync("static/hello.txt"); // Uint8Array
     exit(1)
 }
 
-var dir = process.argv[2];
+var dir = process.argv[2].endsWith("/") ? process.argv[2].slice(0, -1) : process.argv[2];
 var output = process.argv.length >= 4 ? process.argv[3] : "bundle.js"
 
 var f = await fs.open(output, 'w');
