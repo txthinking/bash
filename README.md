@@ -49,11 +49,3 @@ Brook Import Link Generator, limit times, expiration time, restrict browser acce
 ```
 jb https://bash.ooo/import.js
 ```
-
-## [bundle.js](https://github.com/txthinking/jb)
-
-Bundle all files in a folder and then embed them into a standalone js file.
-
-```
-jb https://bash.ooo/bundle.js
-```
