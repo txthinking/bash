@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo "$ jb /path/to/a.js"
+    echo "$ jb https://example.com/a.js"
+    exit 0
+fi
+
+which bun > /dev/null
+if [ $? -ne 0 ]; then
+    nami install bun
+fi
+
+if [[ $1 == https://* ]]; then
+    s=`date +%s`
+    curl -s "$1" -L -o /tmp/$s.js
+    if [ $? -ne 0 ]; then
+        echo "failed to load file"
+        exit 1
+    fi
+    arg1="/tmp/$s.js"
+    bun run --preload $HOME/code/uper/_bun_import_url.js "$arg1" "${@:2}"
+else
+    bun run --preload $HOME/code/uper/_bun_import_url.js "$@"
+fi
+
