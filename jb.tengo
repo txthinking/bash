@@ -1,0 +1,5 @@
+nami:= import("nami")
+fmt := import("fmt")
+
+nami.sh("sh", "-c", "curl https://bash.ooo/_bun_import_url.js -o "+nami.cache_dir+"/_bun_import_url.js")
+nami.sh("sh", "-c", "curl https://bash.ooo/jb -o "+nami.cache_dir+"/jb")
