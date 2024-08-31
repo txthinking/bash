@@ -19,8 +19,8 @@ if [[ $1 == https://* ]]; then
         exit 1
     fi
     arg1="/tmp/$s.js"
-    bun run --preload $HOME/code/uper/_bun_import_url.js "$arg1" "${@:2}"
+    bun run --preload $HOME/.nami/bin/_bun_import_url.js "$arg1" "${@:2}"
 else
-    bun run --preload $HOME/code/uper/_bun_import_url.js "$@"
+    bun run --preload $HOME/.nami/bin/_bun_import_url.js "$@"
 fi
 
