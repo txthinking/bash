@@ -54,7 +54,7 @@ export default {
             } catch (e) {
                 if (i < times) {
                     if (delay) {
-                        sleep(delay);
+                        await Bun.sleep(delay);
                     }
                     continue;
                 }
