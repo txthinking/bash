@@ -4,7 +4,7 @@ export default {
         return parseInt(Date.now() / 1000);
     },
 
-    question: function (q, v) {
+    question: async function (q, v) {
         if (!v) {
             return prompt(q);
         }
@@ -14,7 +14,7 @@ export default {
                 continue;
             }
             if (typeof v === "function") {
-                if (v(s)) {
+                if (await v(s)) {
                     return s;
                 }
                 continue;
