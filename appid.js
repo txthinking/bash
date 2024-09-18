@@ -1,17 +1,19 @@
-#!/usr/bin/env jb
-
-import fs from 'node:fs'
+import * as fs from 'node:fs/promises';
+import { $ } from 'bun';
 
 if (process.argv.length != 3) {
-    echo()
-    echo(`Get appid from macOS app:`)
-    echo()
-    echo(`  $ jb https://bash.ooo/appid.js /Applications/Safari.app`)
-    echo()
-    exit()
+    console.log()
+    console.log(`Get appid from macOS app:`)
+    console.log()
+    console.log(`  $ bunu https://bash.ooo/appid.js /Applications/Safari.app`)
+    console.log()
+    process.exit()
 }
 
-var l = fs.readdirSync(process.argv[2], { recursive: true })
-    .filter(v => v.endsWith('Info.plist'))
-    .map(v => $1(`defaults read '${process.argv[2]}/${v}' CFBundleIdentifier`))
-echo([...new Set(l)].join('\n'))
+var l = await fs.readdir(process.argv[2], { recursive: true })
+l = l.filter(v => v.endsWith('Info.plist'))
+var l1= []
+for(var i=0;i<l.length;i++){
+    l1.push((await $`defaults read '${process.argv[2]}/${l[i]}' CFBundleIdentifier`.text()).trim())
+}
+console.log([...new Set(l1)].join('\n'))

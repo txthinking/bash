@@ -1,5 +1,12 @@
-import { sh1, sh, s2b, b2s, home, splithostport, joinhostport, which, what, echo, log, sleep, now, exit } from "https://raw.githubusercontent.com/txthinking/denolib/master/f.js";
-import { parse } from "https://deno.land/std@0.130.0/flags/mod.ts";
+import lib from 'https://bash.ooo/lib.js';
+import { $ } from 'bun';
+
+function joinhostport(host, port){
+    if(host.indexOf(":") != -1){
+        return `[${host}]:${port}`
+    }
+    return `${host}:${port}`
+}
 
 var i18n = {
     "Choose what you want to do: ": {
@@ -73,156 +80,205 @@ var i18n = {
 var language = "";
 var lang = (s) => (i18n[s] ? i18n[s][language] ?? s : s);
 
-if (parse(Deno.args).v) {
-    echo("v20221005");
-    exit(0);
+var ip4 = (await $`curl -s -4 http3.ooo`.text().catch((e) => "")).trim();
+var ip6 = (await $`curl -s -6 http3.ooo`.text().catch((e) => "")).trim();
+if (!ip4) {
+    console.log("Can not find your server public IPv4");
+    process.exit(1);
 }
-
-var ip4 = (await sh1("curl -s -4 http3.ooo").catch((e) => "")).trim();
-var ip6 = (await sh1("curl -s -6 http3.ooo").catch((e) => "")).trim();
-if (!ip4 && !ip6) {
-    log("Can not find your server public IP");
-    exit(1);
+if (!ip6) {
+    console.log("Can not find your server public IPv6");
+    process.exit(1);
 }
 
 var letsgo = async () => {
-    await which(lang("Choose what you want to do: "), [
+    await lib.select(lang("Choose what you want to do: "), [
         {
             anwser: lang("I want to run brook server/wsserver/wssserver/socks5"),
             action: async () => {
-                await which(lang("Choose which you want to run: "), [
+                await lib.select(lang("Choose which you want to run: "), [
                     {
                         anwser: lang("I want to run brook server"),
                         action: async () => {
-                            var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
-                                echo(lang("This port is occupied!"));
-                                exit(1);
+                            var port = await lib.question(lang("Type a port, such as 9999: "), /\d+/);
+                            if ((await $`lsof -i:${port}`.text().catch((e) => "")).trim()) {
+                                console.log(lang("This port is occupied!"));
+                                process.exit(1);
                             }
-                            var password = await what(lang("Type a password, such as mypassword: "), /.+/);
-                            await sh(`joker brook server --listen :${port} --password "${password}"`);
-                            await sleep(2000);
-                            await sh(`joker list`);
-                            await sh("joker log `joker last`");
+                            var password = await lib.question(lang("Type a password, such as mypassword: "), /.+/);
+                            await $`joker brook server --listen :${port} --password "${password}"`
+                            await Bun.sleep(2000);
+                            await $`joker list`
+                            await $`joker log $(joker last)`
                             if (ip4) {
-                                await sh(`brook link -s ${joinhostport(ip4, port)} -p "${password}"`);
-                                await sh(`brook link -s ${joinhostport(ip4, port)} -p "${password}" --udpovertcp`);
+                                await $`brook link -s ${joinhostport(ip4, port)} -p "${password}" --udpovertcp`
                             }
                             if (ip6) {
-                                await sh(`brook link -s ${joinhostport(ip6, port)} -p "${password}"`);
-                                await sh(`brook link -s ${joinhostport(ip6, port)} -p "${password}" --udpovertcp`);
+                                await $`brook link -s ${joinhostport(ip6, port)} -p "${password}" --udpovertcp`
                             }
-                            echo(`${lang("Tip: if there is a firewall, remember to open TCP and UDP")} ${port}`);
+                            console.log(`${lang("Tip: if there is a firewall, remember to open TCP and UDP")} ${port}`);
                         },
                     },
                     {
                         anwser: lang("I want to run brook wsserver"),
                         action: async () => {
-                            var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
-                                echo(lang("This port is occupied!"));
-                                exit(1);
+                            var port = await lib.question(lang("Type a port, such as 9999: "), /\d+/);
+                            if ((await $`lsof -i:${port}`.text().catch((e) => "")).trim()) {
+                                console.log(lang("This port is occupied!"));
+                                process.exit(1);
                             }
-                            var password = await what(lang("Type a password, such as mypassword: "), /.+/);
-                            await sh(`joker brook wsserver --listen :${port} --password "${password}"`);
-                            await sleep(2000);
-                            await sh(`joker list`);
-                            await sh("joker log `joker last`");
+                            var password = await lib.question(lang("Type a password, such as mypassword: "), /.+/);
+                            await $`joker brook wsserver --listen :${port} --password "${password}"`
+                            await Bun.sleep(2000);
+                            await $`joker list`
+                            await $`joker log $(joker last)`
                             if (ip4) {
-                                await sh(`brook link -s ws://${joinhostport(ip4, port)} -p "${password}"`);
+                                await $`brook link -s ws://${joinhostport(ip4, port)} -p "${password}"`
                             }
                             if (ip6) {
-                                await sh(`brook link -s ws://${joinhostport(ip6, port)} -p "${password}"`);
+                                await $`brook link -s ws://${joinhostport(ip6, port)} -p "${password}"`
                             }
-                            echo(`${lang("Tip: if there is a firewall, remember to open TCP")} ${port}`);
+                            console.log(`${lang("Tip: if there is a firewall, remember to open TCP")} ${port}`);
                         },
                     },
                     {
                         anwser: lang("I want to run brook wssserver"),
                         action: async () => {
-                            if ((await sh1(`lsof -i:80`).catch((e) => "")).trim()) {
-                                echo(lang("Port 80 is occupied!"));
-                                exit(1);
+                            if ((await $`lsof -i:80`.text().catch((e) => "")).trim()) {
+                                console.log(lang("Port 80 is occupied!"));
+                                process.exit(1);
                             }
-                            var domain = await what(lang("Type your domain, such as hello.com: "), /([1-9]|[a-z]|-|\.)+/);
-                            if ((await sh1(`dig +short -t A ${domain}`)).trim() != ip4 && (await sh1(`dig +short -t AAAA ${domain}`)).trim() != ip6) {
-                                echo(lang("Please resolve your domain to your server's IP"));
-                                exit(1);
+                            var domain = await lib.question(lang("Type your domain, such as hello.com: "), /([1-9]|[a-z]|-|\.)+/);
+                            if ((await $`dig +short -t A ${domain}`.text()).trim() != ip4 && (await $`dig +short -t AAAA ${domain}`.text()).trim() != ip6) {
+                                console.log(lang("Please resolve your domain to your server's IP"));
+                                process.exit(1);
                             }
-                            var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
-                                echo(lang("This port is occupied!"));
-                                exit(1);
+                            var port = await lib.question(lang("Type a port, such as 9999: "), /\d+/);
+                            if ((await $`lsof -i:${port}`.text().catch((e) => "")).trim()) {
+                                console.log(lang("This port is occupied!"));
+                                process.exit(1);
                             }
-                            var password = await what(lang("Type a password, such as mypassword: "), /.+/);
-                            await sh(`joker brook wssserver --domainaddress ${domain}:${port} --password "${password}"`);
-                            await sleep(2000);
-                            await sh(`joker list`);
-                            await sh("joker log `joker last`");
-                            await sh(`brook link -s wss://${joinhostport(domain, port)} -p "${password}"`);
-                            echo(`${lang("Tip: if there is a firewall, remember to open TCP 80 and")} ${port}`);
+                            var password = await lib.question(lang("Type a password, such as mypassword: "), /.+/);
+                            await $`joker brook wssserver --domainaddress ${domain}:${port} --password "${password}"`
+                            await Bun.sleep(2000);
+                            await $`joker list`
+                            await $`joker log $(joker last)`
+                            await $`brook link -s wss://${joinhostport(domain, port)} -p "${password}"`
+                            console.log(`${lang("Tip: if there is a firewall, remember to open TCP 80 and")} ${port}`);
                         },
                     },
                     {
                         anwser: lang("I want to run brook wssserver withoutBrookProtocol"),
                         action: async () => {
-                            if ((await sh1(`lsof -i:80`).catch((e) => "")).trim()) {
-                                echo(lang("Port 80 is occupied!"));
-                                exit(1);
+                            if ((await $`lsof -i:80`.text().catch((e) => "")).trim()) {
+                                console.log(lang("Port 80 is occupied!"));
+                                process.exit(1);
                             }
-                            var domain = await what(lang("Type your domain, such as hello.com: "), /([1-9]|[a-z]|-|\.)+/);
-                            if ((await sh1(`dig +short -t A ${domain}`)).trim() != ip4 && (await sh1(`dig +short -t AAAA ${domain}`)).trim() != ip6) {
-                                echo(lang("Please resolve your domain to your server's IP"));
-                                exit(1);
+                            var domain = await lib.question(lang("Type your domain, such as hello.com: "), /([1-9]|[a-z]|-|\.)+/);
+                            if ((await $`dig +short -t A ${domain}`.text()).trim() != ip4 && (await $`dig +short -t AAAA ${domain}`.text()).trim() != ip6) {
+                                console.log(lang("Please resolve your domain to your server's IP"));
+                                process.exit(1);
                             }
-                            var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
-                                echo(lang("This port is occupied!"));
-                                exit(1);
+                            var port = await lib.question(lang("Type a port, such as 9999: "), /\d+/);
+                            if ((await $`lsof -i:${port}`.text().catch((e) => "")).trim()) {
+                                console.log(lang("This port is occupied!"));
+                                process.exit(1);
                             }
-                            var password = await what(lang("Type a password, such as mypassword: "), /.+/);
-                            await sh(`joker brook wssserver --domainaddress ${domain}:${port} --password "${password}" --withoutBrookProtocol`);
-                            await sleep(2000);
-                            await sh(`joker list`);
-                            await sh("joker log `joker last`");
-                            await sh(`brook link -s wss://${joinhostport(domain, port)} -p "${password}" --withoutBrookProtocol`);
-                            echo(`${lang("Tip: if there is a firewall, remember to open TCP 80 and")} ${port}`);
+                            var password = await lib.question(lang("Type a password, such as mypassword: "), /.+/);
+                            await $`joker brook wssserver --domainaddress ${domain}:${port} --password "${password}" --withoutBrookProtocol`
+                            await Bun.sleep(2000);
+                            await $`joker list`
+                            await $`joker log $(joker last)`
+                            await $`brook link -s wss://${joinhostport(domain, port)} -p "${password}" --withoutBrookProtocol`
+                            console.log(`${lang("Tip: if there is a firewall, remember to open TCP 80 and")} ${port}`);
+                        },
+                    },
+                    {
+                        anwser: lang("I want to run brook quicserver"),
+                        action: async () => {
+                            if ((await $`lsof -i:80`.text().catch((e) => "")).trim()) {
+                                console.log(lang("Port 80 is occupied!"));
+                                process.exit(1);
+                            }
+                            var domain = await lib.question(lang("Type your domain, such as hello.com: "), /([1-9]|[a-z]|-|\.)+/);
+                            if ((await $`dig +short -t A ${domain}`.text()).trim() != ip4 && (await $`dig +short -t AAAA ${domain}`.text()).trim() != ip6) {
+                                console.log(lang("Please resolve your domain to your server's IP"));
+                                process.exit(1);
+                            }
+                            var port = await lib.question(lang("Type a port, such as 9999: "), /\d+/);
+                            if ((await $`lsof -i:${port}`.text().catch((e) => "")).trim()) {
+                                console.log(lang("This port is occupied!"));
+                                process.exit(1);
+                            }
+                            var password = await lib.question(lang("Type a password, such as mypassword: "), /.+/);
+                            await $`joker brook quicserver --domainaddress ${domain}:${port} --password "${password}"`
+                            await Bun.sleep(2000);
+                            await $`joker list`
+                            await $`joker log $(joker last)`
+                            await $`brook link -s quic://${joinhostport(domain, port)} -p "${password}" --udpoverstream`
+                            console.log(`${lang("Tip: if there is a firewall, remember to open TCP 80 and")} ${port}`);
+                        },
+                    },
+                    {
+                        anwser: lang("I want to run brook quicserver withoutBrookProtocol"),
+                        action: async () => {
+                            if ((await $`lsof -i:80`.text().catch((e) => "")).trim()) {
+                                console.log(lang("Port 80 is occupied!"));
+                                process.exit(1);
+                            }
+                            var domain = await lib.question(lang("Type your domain, such as hello.com: "), /([1-9]|[a-z]|-|\.)+/);
+                            if ((await $`dig +short -t A ${domain}`.text()).trim() != ip4 && (await $`dig +short -t AAAA ${domain}`.text()).trim() != ip6) {
+                                console.log(lang("Please resolve your domain to your server's IP"));
+                                process.exit(1);
+                            }
+                            var port = await lib.question(lang("Type a port, such as 9999: "), /\d+/);
+                            if ((await $`lsof -i:${port}`.text().catch((e) => "")).trim()) {
+                                console.log(lang("This port is occupied!"));
+                                process.exit(1);
+                            }
+                            var password = await lib.question(lang("Type a password, such as mypassword: "), /.+/);
+                            await $`joker brook quicserver --domainaddress ${domain}:${port} --password "${password}" --withoutBrookProtocol`
+                            await Bun.sleep(2000);
+                            await $`joker list`
+                            await $`joker log $(joker last)`
+                            await $`brook link -s quic://${joinhostport(domain, port)} -p "${password}" --udpoverstream --withoutBrookProtocol`
+                            console.log(`${lang("Tip: if there is a firewall, remember to open TCP 80 and")} ${port}`);
                         },
                     },
                     {
                         anwser: lang("I want to run brook socks5 without username and password"),
                         action: async () => {
                             var ip = ip4 ? ip4 : ip6;
-                            var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
-                                echo(lang("This port is occupied!"));
-                                exit(1);
+                            var port = await lib.question(lang("Type a port, such as 9999: "), /\d+/);
+                            if ((await $`lsof -i:${port}`.text().catch((e) => "")).trim()) {
+                                console.log(lang("This port is occupied!"));
+                                process.exit(1);
                             }
-                            await sh(`joker brook socks5 -listen :${port} --socks5ServerIP ${ip}`);
-                            await sleep(2000);
-                            await sh(`joker list`);
-                            await sh("joker log `joker last`");
-                            await sh(`brook link -s socks5://${joinhostport(ip, port)}`);
-                            echo(`${lang("Tip: if there is a firewall, remember to open TCP and UDP")} ${port}`);
+                            await $`joker brook socks5 -listen :${port} --socks5ServerIP ${ip}`
+                            await Bun.sleep(2000);
+                            await $`joker list`
+                            await $`joker log $(joker last)`
+                            await $`brook link -s socks5://${joinhostport(ip, port)}`
+                            console.log(`${lang("Tip: if there is a firewall, remember to open TCP and UDP")} ${port}`);
                         },
                     },
                     {
                         anwser: lang("I want to run brook socks5 with username and password"),
                         action: async () => {
                             var ip = ip4 ? ip4 : ip6;
-                            var port = await what(lang("Type a port, such as 9999: "), /\d+/);
-                            if ((await sh1(`lsof -i:${port}`).catch((e) => "")).trim()) {
-                                echo(lang("This port is occupied!"));
-                                exit(1);
+                            var port = await lib.question(lang("Type a port, such as 9999: "), /\d+/);
+                            if ((await $`lsof -i:${port}`.text().catch((e) => "")).trim()) {
+                                console.log(lang("This port is occupied!"));
+                                process.exit(1);
                             }
-                            var username = await what(lang("Type a username, such as myusername: "), /.+/);
-                            var password = await what(lang("Type a password, such as mypassword: "), /.+/);
-                            await sh(`joker brook socks5 -listen :${port} --socks5ServerIP ${ip} --username "${username}" --password "${password}"`);
-                            await sleep(2000);
-                            await sh(`joker list`);
-                            await sh("joker log `joker last`");
-                            await sh(`brook link -s socks5://${joinhostport(ip, port)} --username "${username}" --password "${password}"`);
-                            echo(`${lang("Tip: if there is a firewall, remember to open TCP and UDP")} ${port}`);
+                            var username = await lib.question(lang("Type a username, such as myusername: "), /.+/);
+                            var password = await lib.question(lang("Type a password, such as mypassword: "), /.+/);
+                            await $`joker brook socks5 -listen :${port} --socks5ServerIP ${ip} --username "${username}" --password "${password}"`
+                            await Bun.sleep(2000);
+                            await $`joker list`
+                            await $`joker log $(joker last)`
+                            await $`brook link -s socks5://${joinhostport(ip, port)} --username "${username}" --password "${password}"`
+                            console.log(`${lang("Tip: if there is a firewall, remember to open TCP and UDP")} ${port}`);
                         },
                     },
                 ]);
@@ -231,21 +287,21 @@ var letsgo = async () => {
         {
             anwser: lang("I want to see running brook command"),
             action: async () => {
-                await sh(`joker list`);
+                await $`joker list`
             },
         },
         {
             anwser: lang("I want to stop a brook command"),
             action: async () => {
-                await sh(`joker list`);
-                var id = await what(lang("Choose a PID your want to stop: "), /\d+/);
-                await sh(`joker stop ${id}`);
+                await $`joker list`
+                var id = await lib.question(lang("Choose a PID your want to stop: "), /\d+/);
+                await $`joker stop ${id}`
             },
         },
     ]);
 };
 
-await which("Language: ", [
+await lib.select("Language: ", [
     {
         anwser: "English",
         action: async () => {

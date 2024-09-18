@@ -1,21 +1,22 @@
-#!/usr/bin/env jb
-
 import os from 'node:os';
+import lib from 'https://bash.ooo/lib.js';
+import { $ } from 'bun';
 import { Database } from "bun:sqlite";
+import * as fs from 'node:fs/promises';
 
 const { program } = require('commander')
 program
-    .name('jb https://bash.ooo/china.js')
+    .name('bunu https://bash.ooo/china.js')
     .description('https://www.txthinking.com/talks/articles/china-list.article')
     .option('--source <string>', "gui: 自动查找 GUI 日志; 或 /path/to/log", '')
-    .option('--how <string>', 'A: 从海外 IP 向海外 DNS  发起查询, 比如开启 GUI 的情况下或在服务器端运行, 缺点是如果域名同时有国内和海外 IP 则会被认为是海外域名; B: 从国内 IP 向阿里 DNS 发起查询, 开启 GUI 情况下也没事，GUI 默认 bypass 了阿里 DNS, 缺点是如果返回的污染 IP 是国内的 IP 就会错乱，但历史经验不会, 还有一个缺点是 Google 有一些域名有国内的 IP', '')
+    .option('--how <string>', '配合 source 参数一起使用。A: 从海外 IP 向海外 DNS  发起查询, 比如开启 GUI 的情况下或在服务器端运行, 缺点是如果域名同时有国内和海外 IP 则会被认为是海外域名; B: 从国内 IP 向阿里 DNS 发起查询, 开启 GUI 情况下也没事，GUI 默认 bypass 了阿里 DNS, 缺点是如果返回的污染 IP 是国内的 IP 就会错乱，但历史经验不会, 还有一个缺点是 Google 有一些域名有国内的 IP', '')
     .option('--china <string>', '弥补 A 和 B 方案的不足，手动设置某个域名为国内域名', '')
     .option('--global <string>', '弥补 A 和 B 方案的不足，手动设置某个域名为国际域名', '')
     .option('--delete <string>', '移除某个域名. 如果想删除所有, 直接删除 rm -rf ~/.china.db', '')
     .option('--table', '打印整个表', false)
-    .option('--list', '打印列表', false)
-    .option('--module', '打印 module, 让域名走 bypass DNS 来解析', false)
-    .option('--modulea', '打印 module, 让域名走 bypass DNS 来解析出 A 记录，然后直接 bypass', false)
+    .option('--list', '打印中国列表', false)
+    .option('--module', '生成 module, 让中国域名走 bypass DNS 来解析', false)
+    .option('--modulea', '生成 module, 让中国域名走 bypass DNS 来解析出 A 记录，然后直接 bypass', false)
 program.parse();
 const options = program.opts();
 
@@ -327,7 +328,7 @@ if (options.china) {
     } else {
         db.query('insert into cn(domain, iscn) values(?, ?)').run(d, 1)
     }
-    exit()
+    process.exit()
 }
 
 if (options.global) {
@@ -341,12 +342,12 @@ if (options.global) {
     } else {
         db.query('insert into cn(domain, iscn) values(?, ?)').run(d, 2)
     }
-    exit()
+    process.exit()
 }
 
 if (options.delete) {
     db.query('delete from cn where domain=?').run(options.delete);
-    exit()
+    process.exit()
 }
 
 if (options.table) {
@@ -354,14 +355,14 @@ if (options.table) {
     r.sort((a, b) => a.domain > b.domain)
     const { printTable } = require('console-table-printer');
     printTable(r)
-    exit()
+    process.exit()
 }
 
 if (options.list) {
     var r = db.query('select * from cn where iscn=1').all();
     r.sort((a, b) => a.domain > b.domain)
-    echo(r.map(v => v.domain).join('\n'))
-    exit()
+    console.log(r.map(v => v.domain).join('\n'))
+    process.exit()
 }
 
 if (options.module) {
@@ -421,8 +422,8 @@ modules = append(modules, {
     }
 })
 `
-    echo(s)
-    exit()
+    console.log(s)
+    process.exit()
 }
 
 if (options.modulea) {
@@ -489,8 +490,8 @@ modules = append(modules, {
     }
 })
 `
-    echo(s)
-    exit()
+    console.log(s)
+    process.exit()
 }
 
 function get_domain(addr) {
@@ -508,29 +509,38 @@ function get_domain(addr) {
     return s
 }
 
-function get_todo() {
+async function exists(file) {
+    try {
+        await fs.access(file, fs.constants.F_OK)
+        return true
+    } catch {
+        return false
+    }
+}
+
+async function get_todo() {
     var l = []
     if (options.source == 'gui') {
-        if (global.exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log")) {
-            var s = read_file(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log")
+        if (await exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log")) {
+            var s = await fs.readFile(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log", { encoding: 'utf8' })
             if (s && s.trim()) {
                 l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
             }
         }
-        if (global.exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log")) {
-            var s = read_file(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log")
+        if (await exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log")) {
+            var s = await fs.readFile(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log", { encoding: 'utf8' })
             if (s && s.trim()) {
                 l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
             }
         }
-        if (global.exists(os.homedir() + "/.b.log")) {
-            var s = read_file(os.homedir() + "/.b.log")
+        if (await exists(os.homedir() + "/.b.log")) {
+            var s = await fs.readFile(os.homedir() + "/.b.log", { encoding: 'utf8' })
             if (s && s.trim()) {
                 l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
             }
         }
     } else {
-        var s = read_file(options.source)
+        var s = await fs.readFile(options.source, { encoding: 'utf8' })
         if (s && s.trim()) {
             l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
             l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.dst).map(v => get_domain(v.dst)).filter(v => v))
@@ -538,19 +548,19 @@ function get_todo() {
         }
     }
     if (!l.length) {
-        echo('没有发现域名')
-        exit(1)
+        console.log('没有发现域名')
+        process.exit(1)
     }
     return [...new Set(l)]
 }
 
-function get_cn_domain_with_global_dns(domain) {
-    var s = $1(`brook dohclient -t A --short -d ${domain}`)
+async function get_cn_domain_with_global_dns(domain) {
+    var s = await $`brook dohclient -t A --short -d ${domain}`.text()
     if (s) {
-        if ($1(`brook ipcountry --ip ${s}`) != 'CN') {
+        if ((await $`brook ipcountry --ip ${s.trim()}`.text()).trim() != 'CN') {
             return
         }
-        s = $1(`brook dohclient -t A -d ${domain}`)
+        s = await $`brook dohclient -t A -d ${domain}`.text()
         var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
         l.push(domain)
         return l.map(v => {
@@ -560,46 +570,12 @@ function get_cn_domain_with_global_dns(domain) {
             return b + '.' + a
         })
     }
-    var s = $1(`brook dohclient -t AAAA --short -d ${domain}`)
+    var s = await $`brook dohclient -t AAAA --short -d ${domain}`.text()
     if (s) {
-        if ($1(`brook ipcountry --ip ${s}`) != 'CN') {
+        if ((await $`brook ipcountry --ip ${s.trim()}`.text()).trim() != 'CN') {
             return
         }
-        s = $1(`brook dohclient -t AAAA -d ${domain}`)
-        var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
-        l.push(domain)
-        return l.map(v => {
-            var l1 = v.split('.')
-            var a = l1.pop()
-            var b = l1.pop()
-            return b + '.' + a
-        })
-    }
-    throw `unknown ${domain}`
-}
-
-function get_cn_domain_with_china_dns(domain) {
-    var s = $1(`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t A --short -d ${domain}`)
-    if (s) {
-        if ($1(`brook ipcountry --ip ${s}`) != 'CN') {
-            return
-        }
-        s = $1(`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t A -d ${domain}`)
-        var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
-        l.push(domain)
-        return l.map(v => {
-            var l1 = v.split('.')
-            var a = l1.pop()
-            var b = l1.pop()
-            return b + '.' + a
-        })
-    }
-    var s = $1(`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t AAAA --short -d ${domain}`)
-    if (s) {
-        if ($1(`brook ipcountry --ip ${s}`) != 'CN') {
-            return
-        }
-        s = $1(`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t AAAA -d ${domain}`)
+        s = await $`brook dohclient -t AAAA -d ${domain}`.text()
         var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
         l.push(domain)
         return l.map(v => {
@@ -612,8 +588,42 @@ function get_cn_domain_with_china_dns(domain) {
     throw `unknown ${domain}`
 }
 
-var l = get_todo()
-echo('todo', l.length)
+async function get_cn_domain_with_china_dns(domain) {
+    var s = await $`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t A --short -d ${domain}`.text()
+    if (s) {
+        if ((await $`brook ipcountry --ip ${s.trim()}`.text()).trim() != 'CN') {
+            return
+        }
+        s = await $`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t A -d ${domain}`.text()
+        var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
+        l.push(domain)
+        return l.map(v => {
+            var l1 = v.split('.')
+            var a = l1.pop()
+            var b = l1.pop()
+            return b + '.' + a
+        })
+    }
+    var s = await $`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t AAAA --short -d ${domain}`.text()
+    if (s) {
+        if ((await $`brook ipcountry --ip ${s.trim()}`.text()).trim() != 'CN') {
+            return
+        }
+        s = await $`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t AAAA -d ${domain}`.trim()
+        var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
+        l.push(domain)
+        return l.map(v => {
+            var l1 = v.split('.')
+            var a = l1.pop()
+            var b = l1.pop()
+            return b + '.' + a
+        })
+    }
+    throw `unknown ${domain}`
+}
+
+var l = await get_todo()
+console.log('todo', l.length)
 for (var i = 0; i < l.length; i++) {
     var d = l[i].toLowerCase()
     if (d.endsWith('.cn')) {
@@ -628,7 +638,7 @@ for (var i = 0; i < l.length; i++) {
         continue
     }
     try {
-        var l1 = await retry(() => options.how == 'A' ? get_cn_domain_with_global_dns(d) : get_cn_domain_with_china_dns(d), 1000, 2)
+        var l1 = await lib.retry(async () => options.how == 'A' ? await get_cn_domain_with_global_dns(d) : await get_cn_domain_with_china_dns(d), 1000, 2)
         if (l1) {
             l1.forEach(v => {
                 var r = db.query('select * from cn where domain=?').get(v);
@@ -640,8 +650,8 @@ for (var i = 0; i < l.length; i++) {
         } else {
             db.query('insert into cn(domain, iscn) values(?, ?)').run(s0, 2)
         }
-        echo(`${parseInt((i + 1) / l.length * 100)}%`)
+        console.log(`${parseInt((i + 1) / l.length * 100)}%`)
     } catch (e) {
-        echo(d, e.toString())
+        console.log(d, e.toString())
     }
 }
