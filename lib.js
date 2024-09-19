@@ -75,6 +75,26 @@ export default {
         await anwseraction[i - 1].action();
     },
 
+    go: function(js, args) {
+        return new Promise((resolve, reject) => {
+            var blob = new Blob(
+                [
+                    js,
+                ],
+                {
+                    type: "application/javascript",
+                },
+            );
+            var url = URL.createObjectURL(blob);
+            var worker = new Worker(url);
+            worker.postMessage(args);
+            worker.onmessage = event => {
+                worker.terminate();
+                resolve(event.data)
+            };
+        });
+    },
+
     // async lock, js lock, js mutex, js sync, js queue
     // var sync = new Sync();
     // await sync.atomic(async () => {});
