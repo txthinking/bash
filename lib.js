@@ -95,7 +95,7 @@ export default {
         });
     },
 
-    setImmediatePromise: function {    
+    setImmediatePromise: function (){    
         return new Promise((resolve) => {      
           setImmediate(() => resolve());    
         });  
