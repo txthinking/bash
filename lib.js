@@ -95,6 +95,12 @@ export default {
         });
     },
 
+    setImmediatePromise: function {    
+        return new Promise((resolve) => {      
+          setImmediate(() => resolve());    
+        });  
+    },
+
     // async lock, js lock, js mutex, js sync, js queue
     // var sync = new Sync();
     // await sync.atomic(async () => {});
