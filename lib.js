@@ -1,10 +1,96 @@
+import { Database } from "bun:sqlite";
+
+var db = (sdb) => {
+    return {
+        c: (table, o) => {
+            var l = [];
+            var l1 = [];
+            var params = {};
+            for (var k in o) {
+                if (k == 'id') {
+                    continue;
+                }
+                l.push(k);
+                l1.push(`$${k}`);
+                params[`$${k}`] = o[k];
+            }
+            var r = sdb.query(`insert into ${table}(${l.join(', ')}) values(${l1.join(', ')})`).run(params);
+            return sdb.query(`select * from ${table} where id=?`).get(r.lastInsertRowid);
+        },
+        u: (table, o) => {
+            if (!o.id) {
+                throw new Error('u needs object has id');
+            }
+            var l = [];
+            var params = {};
+            for (var k in o) {
+                if (k == 'id') {
+                    continue;
+                }
+                l.push(`${k}=$${k}`);
+                params[`$${k}`] = o[k];
+            }
+            params[`$id`] = o.id;
+            sdb.query(`update ${table} set ${l.join(', ')} where id=$id`).run(params);
+            return sdb.query(`select * from ${table} where id=?`).get(o.id);
+        },
+        r: (table, id) => {
+            return sdb.query(`select * from ${table} where id=?`).get(id)
+        },
+        d: (table, id) => {
+            sdb.query(`delete from ${table} where id=?`).run(id)
+        },
+        query: (...args) => {
+            return sdb.query(...args);
+        },
+        transaction: (f) => {
+            return sdb.transaction(f)();
+        },
+        close: () => {
+            sdb.close();
+        },
+    };
+};
+
 export default {
 
-    now: function(){
+    sqlite: function(path, options) {
+        if (options) options = {}
+        var s = new Database(path, {
+            create: options.readonly ? false : true,
+            readonly: options.readonly ? true : false,
+        });
+        if (options.wal) {
+            s.exec("PRAGMA journal_mode = WAL;");
+        }
+        return db(s);
+    },
+
+    migrate: function(sqlite) {
+        var f = (id, sql) => {
+            var r = sqlite.query(`select * from migration where id=?`).get(id);
+            if (r) {
+                return
+            }
+            sqlite.query(sql).run();
+            sqlite.query(`insert into migration(id) values(?)`).run(id);
+        };
+        var l = sqlite.query(`SELECT name FROM sqlite_master WHERE type='table'`).all();
+        if (!l.find(v => v.name == 'migration')) {
+            sqlite.query(`
+create table migration(
+    id text not null UNIQUE
+)
+`).run();
+        }
+        return f;
+    },
+
+    now: function() {
         return parseInt(Date.now() / 1000);
     },
 
-    question: async function (q, v) {
+    question: async function(q, v) {
         if (!v) {
             return prompt(q);
         }
@@ -63,7 +149,7 @@ export default {
         }
     },
 
-    select: async function (question, anwseraction) {
+    select: async function(question, anwseraction) {
         for (; ;) {
             var i = prompt(anwseraction.map((v, i) => `${i + 1}: ${v.anwser}`).join("\n") + `\n${question}`);
             i = parseInt(i);
@@ -95,10 +181,10 @@ export default {
         });
     },
 
-    setImmediatePromise: function (){    
-        return new Promise((resolve) => {      
-          setImmediate(() => resolve());    
-        });  
+    setImmediatePromise: function() {
+        return new Promise((resolve) => {
+            setImmediate(() => resolve());
+        });
     },
 
     // async lock, js lock, js mutex, js sync, js queue
@@ -113,16 +199,16 @@ export default {
                         .then((v) => resolve(v))
                         .catch((v) => reject(v));
                 }).catch((e) => {
-                        f()
-                            .then((v) => resolve(v))
-                            .catch((v) => reject(v));
-                    });
+                    f()
+                        .then((v) => resolve(v))
+                        .catch((v) => reject(v));
+                });
             });
             return p;
         };
     },
 
-    read_url: async function (url) {
+    read_url: async function(url) {
         var res = await fetch(url);
         if (!res.ok) {
             throw res.status + ": " + (await res.text());
