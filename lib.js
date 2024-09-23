@@ -1,4 +1,5 @@
 import { Database } from "bun:sqlite";
+import * as fs from 'node:fs/promises';
 
 var db = (sdb) => {
     return {
@@ -53,7 +54,16 @@ var db = (sdb) => {
 };
 
 export default {
-
+    
+    file_exists: async function(s) {
+        try {
+            await fs.access(s, fs.constants.F_OK)
+            return true
+        } catch {
+            return false
+        }
+    },
+    
     sqlite: function(path, options) {
         if (options) options = {}
         var s = new Database(path, {
