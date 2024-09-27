@@ -55,6 +55,17 @@ var db = (sdb) => {
 
 export default {
     
+    country_to_emoji: function (country_code) {
+        if (country_code === "UK") {
+            country_code = "GB";
+        }
+        const flag = country_code.replace(/[A-Z]/g, (match) => {
+            const cc = match.charCodeAt(0);
+            return String.fromCodePoint(cc + 127397);
+        });
+        return flag;
+    },
+    
     file_exists: async function(s) {
         try {
             await fs.access(s, fs.constants.F_OK)
