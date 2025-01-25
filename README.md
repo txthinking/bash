@@ -16,7 +16,7 @@ bash <(curl https://bash.ooo/brook.sh)
 
 > `nami install bun bun.plus`
 
-Automatically generated list or module of China domains
+[自动生成自用的中国域名直连模块](https://www.txthinking.com/talks/articles/china-list.article)
 
 ```
 bunu https://bash.ooo/china.js
@@ -38,22 +38,3 @@ bunu https://bash.ooo/appid.js
 bash <(curl https://bash.ooo/brew.sh)
 ```
 
-## import.js
-
-> `nami install jb`
-
-Brook Import Link Generator, limit times, expiration time, restrict browser access
-
-```
-jb https://bash.ooo/import.js
-```
-
-## fly.js
-
-> `nami install jb`
-
-This script helps you deploy a brook on fly.io for free, no need to go to the fly.io website for any operations.
-
-```
-jb https://bash.ooo/fly.js
-```

@@ -3,24 +3,23 @@ import lib from 'https://bash.ooo/lib.js';
 import { $ } from 'bun';
 import { Database } from "bun:sqlite";
 import * as fs from 'node:fs/promises';
+import path from 'node:path'
 
 const { program } = require('commander')
 program
     .name('bunu https://bash.ooo/china.js')
     .description('https://www.txthinking.com/talks/articles/china-list.article')
-    .option('--source <string>', "gui: 自动查找 GUI 日志; 或 /path/to/log", '')
-    .option('--how <string>', '配合 source 参数一起使用。A: 从海外 IP 向海外 DNS  发起查询, 比如开启 GUI 的情况下或在服务器端运行, 缺点是如果域名同时有国内和海外 IP 则会被认为是海外域名; B: 从国内 IP 向阿里 DNS 发起查询, 开启 GUI 情况下也没事，GUI 默认 bypass 了阿里 DNS, 缺点是如果返回的污染 IP 是国内的 IP 就会错乱，但历史经验不会, 还有一个缺点是 Google 有一些域名有国内的 IP', '')
-    .option('--china <string>', '弥补 A 和 B 方案的不足，手动设置某个域名为国内域名', '')
-    .option('--global <string>', '弥补 A 和 B 方案的不足，手动设置某个域名为国际域名', '')
-    .option('--delete <string>', '移除某个域名. 如果想删除所有, 直接删除 rm -rf ~/.china.db', '')
-    .option('--table', '打印整个表', false)
-    .option('--list', '打印中国列表', false)
-    .option('--module', '生成 module, 让中国域名走 bypass DNS 来解析', false)
-    .option('--modulea', '生成 module, 让中国域名走 bypass DNS 来解析出 A 记录，然后直接 bypass', false)
+    .option('--source <string>', "gui: 自动查找 GUI 日志; /path/to/log: 服务端或客户端日志路径。[与 --how 一起使用]", '')
+    .option('--how <string>', 'A: 从海外 IP 向海外 DNS 发起查询, 比如开启 GUI 的情况下或在服务器端运行, 缺点是如果域名同时有国内和海外 IP 则会被认为是海外域名; B: 从国内 IP 向阿里 DNS 发起查询, 比如在本地运行, 开启 GUI 情况下也没事，GUI 默认 bypass 了阿里 DNS, 缺点是如果返回的污染 IP 是国内的 IP 就会错乱，但历史经验不会, 还有一个缺点是 Google 有一些域名有国内的 IP。[与 --source 一起使用]', '')
+    .option('--table', '打印整个表。[独立使用]', false)
+    .option('--china <string>', '弥补 A 和 B 方案的不足，手动调整某个域名为国内域名。[独立使用]', '')
+    .option('--global <string>', '弥补 A 和 B 方案的不足，手动调整某个域名为国际域名。[独立使用]', '')
+    .option('--delete <string>', '移除某个域名. 如果想删除所有, 直接删除 rm -rf ~/.china.db。[独立使用]', '')
+    .option('--modulea', '生成 module, 让中国域名走 bypass DNS 来解析出 A 记录，然后直接 bypass。[独立使用]', false)
 program.parse();
 const options = program.opts();
 
-if (!options.china && !options.global && !options.delete && !options.table && !options.list && !options.module && !options.modulea && (!options.source || !options.how)) {
+if (!options.china && !options.global && !options.delete && !options.table && !options.modulea && (!options.source || !options.how)) {
     program.help()
 }
 
@@ -358,74 +357,6 @@ if (options.table) {
     process.exit()
 }
 
-if (options.list) {
-    var r = db.query('select * from cn where iscn=1').all();
-    r.sort((a, b) => a.domain > b.domain)
-    console.log(r.map(v => v.domain).join('\n'))
-    process.exit()
-}
-
-if (options.module) {
-    var r = db.query('select * from cn where iscn=1').all();
-    var i = 0
-    var s = ""
-    var l = []
-    r.map(v => v.domain).forEach(v => {
-        l.push(`"${v}": true,`)
-        i++
-        if (i == 200) {
-            s += `
-        l = {
-${l.join("\n").slice(0, -1)}
-        }
-        r = f(m.domain, l)
-        if r != undefined {
-            return r
-        }
-`
-            i = 0
-            l = []
-        }
-    })
-    if (l.length) {
-        s += `
-        l = {
-${l.join("\n").slice(0, -1)}
-        }
-        r = f(m.domain, l)
-        if r != undefined {
-            return r
-        }
-`
-    }
-    s = `
-modules = append(modules, {
-    dnsquery: func(m) {
-        text := import("text")
-        f := func(domain, l){
-            ss := text.split(text.to_lower(domain), ".")
-            s := ""
-            for i := len(ss) - 1; i >= 0; i-- {
-                if s == "" {
-                    s = ss[i]
-                } else {
-                    s = ss[i] + "." + s
-                }
-                if l[s] {
-                    return { bypass: true }
-                }
-            }
-        }
-        l := undefined
-        r := undefined
-        ${s}
-    }
-})
-`
-    console.log(s)
-    process.exit()
-}
-
 if (options.modulea) {
     var r = db.query('select * from cn where iscn=1').all();
     var i = 0
@@ -535,6 +466,12 @@ async function get_todo() {
         }
         if (await exists(os.homedir() + "/.b.log")) {
             var s = await fs.readFile(os.homedir() + "/.b.log", { encoding: 'utf8' })
+            if (s && s.trim()) {
+                l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+            }
+        }
+        if (await exists(path.join(process.env.AppData ?? '', ".b.log"))) {
+            var s = await fs.readFile(path.join(process.env.AppData ?? '', ".b.log"), { encoding: 'utf8' })
             if (s && s.trim()) {
                 l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
             }
