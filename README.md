@@ -14,7 +14,7 @@ bash <(curl https://bash.ooo/brook.sh)
 
 ## china.js
 
-> `nami install bun bun.plus`
+> `nami install brook bun bun.plus`
 
 [自动生成自用的中国域名直连模块](https://www.txthinking.com/talks/articles/china-list.article)
 
