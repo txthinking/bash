@@ -1,4 +1,5 @@
 import * as fs from 'node:fs/promises'
+import path from "node:path";
 
 if (process.argv.length < 4) {
     console.log("$ bunu https://bash.ooo/bundle.js /path/to/directory bundled.js")
@@ -18,7 +19,7 @@ var l = await fs.readdir(dir, { recursive: true, withFileTypes: true })
 for (var v of l) {
     if (v.isFile()) {
         var s = v.path + "/" + v.name
-        var k = s.replace(dir, '')
+        var k = s.replace(dir, path.basename(dir) + "/")
         await fs.write(f.fd, new TextEncoder().encode(`m["${k}"] = new Uint8Array([`));
         var b = new Uint8Array(await Bun.file(s).arrayBuffer());
         for (var j = 0; j < b.length; j++) {
