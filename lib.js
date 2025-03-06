@@ -1,5 +1,6 @@
 import { Database } from "bun:sqlite";
 import * as fs from 'node:fs/promises';
+import { $ } from "bun";
 
 var db = (sdb) => {
     return {
@@ -55,6 +56,11 @@ var db = (sdb) => {
 
 export default {
 
+    video_second: async function(vora) {
+        var a = await $`ffprobe -i ${vora} -show_entries format=duration -v quiet -of csv="p=0"`.text()
+        return parseInt(parseFloat(a));
+    },
+    
     second_to_clock: function(s) {
         var i = parseInt(s / 60 / 60);
         var h = i >= 10 ? `${i}` : `0${i}`;
