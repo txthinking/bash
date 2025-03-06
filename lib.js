@@ -54,6 +54,22 @@ var db = (sdb) => {
 };
 
 export default {
+
+    second_to_clock: function(s) {
+        var i = parseInt(s / 60 / 60);
+        var h = i >= 10 ? `${i}` : `0${i}`;
+        s -= i * 60 * 60;
+        var i = parseInt(s / 60);
+        var m = i >= 10 ? `${i}` : `0${i}`;
+        s -= i * 60;
+        var ss = s >= 10 ? `${s}` : `0${s}`;
+        return `${h}:${m}:${ss}`;
+    },
+
+    clock_to_second: function(s) {
+        var l = s.split(":")
+        return parseInt(l[0]) * 60 * 60 + parseInt(l[1]) * 60 + parseInt(l[2])
+    },
     
     country_to_emoji: function (country_code) {
         if (country_code === "UK") {
