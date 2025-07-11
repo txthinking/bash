@@ -464,6 +464,12 @@ async function get_todo() {
                 l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
             }
         }
+        if (await exists(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log")) {
+            var s = await fs.readFile(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log", { encoding: 'utf8' })
+            if (s && s.trim()) {
+                l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+            }
+        }
         if (await exists(os.homedir() + "/.b.log")) {
             var s = await fs.readFile(os.homedir() + "/.b.log", { encoding: 'utf8' })
             if (s && s.trim()) {
