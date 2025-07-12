@@ -80,8 +80,8 @@ var i18n = {
 var language = "";
 var lang = (s) => (i18n[s] ? i18n[s][language] ?? s : s);
 
-var ip4 = (await $`curl -s -4 http3.ooo`.text().catch((e) => "")).trim();
-var ip6 = (await $`curl -s -6 http3.ooo`.text().catch((e) => "")).trim();
+var ip4 = (await $`curl -s -4 https://ipinfo.io/ip`.text().catch((e) => "")).trim();
+var ip6 = (await $`curl -s -6 https://v6.ipinfo.io/ip`.text().catch((e) => "")).trim();
 if (!ip4) {
     console.log("Can not find your server public IPv4");
     process.exit(1);
