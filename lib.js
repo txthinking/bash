@@ -56,6 +56,20 @@ var db = (sdb) => {
 
 export default {
 
+    sh: async(first){
+        var cmd = first instanceof Array ? first[0] : first;
+        var p = Bun.spawn(["sh", "-c", cmd], {
+            stdin: null,
+            stdout: "pipe",
+            stderr: "pipe",
+        });
+        var i = await p.exited
+        if (i != 0) {
+            throw `${cmd}: ${await Bun.readableStreamToText(p.stderr)}`;
+        }
+        return await Bun.readableStreamToText(p.stdout);
+    },
+    
     video_second: async function(vora) {
         var a = await $`ffprobe -i ${vora} -show_entries format=duration -v quiet -of csv="p=0"`.text()
         return parseInt(parseFloat(a));
