@@ -56,7 +56,7 @@ var db = (sdb) => {
 
 export default {
 
-    sh: async(first){
+    sh: async function(first){
         var cmd = first instanceof Array ? first[0] : first;
         var p = Bun.spawn(["sh", "-c", cmd], {
             stdin: null,
