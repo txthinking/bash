@@ -476,6 +476,7 @@ async function get_todo() {
                 l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
             }
         }
+        console.log("Windows 下可能无法自动寻找到日志路径，你可能需要手动指定，大概位置类似：C:\\Users\\txthi\\AppData\\Local\\Packages\\com.txthinking.brook.xxx\\LocalCache\\Roaming\\b.log")
         if (await exists(path.join(process.env.AppData ?? '', ".b.log"))) {
             var s = await fs.readFile(path.join(process.env.AppData ?? '', ".b.log"), { encoding: 'utf8' })
             if (s && s.trim()) {
