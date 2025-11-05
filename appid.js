@@ -11,9 +11,13 @@ if (process.argv.length != 3) {
 }
 
 var l = await fs.readdir(process.argv[2], { recursive: true })
-l = l.filter(v => v.endsWith('Info.plist'))
+l = l.filter(v => v.endsWith('/Info.plist'))
 var l1= []
 for(var i=0;i<l.length;i++){
-    l1.push((await $`defaults read '${process.argv[2]}/${l[i]}' CFBundleIdentifier`.text()).trim())
+    try{
+        l1.push((await $`defaults read '${process.argv[2]}/${l[i]}' CFBundleIdentifier`.text()).trim())
+    }catch(e){
+        console.error(e)
+    }
 }
 console.log([...new Set(l1)].join('\n'))
