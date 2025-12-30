@@ -1,6 +1,5 @@
 import os from 'node:os';
 import lib from 'https://bash.ooo/lib.js';
-import { $ } from 'bun';
 import { Database } from "bun:sqlite";
 import * as fs from 'node:fs/promises';
 import path from 'node:path'
@@ -536,12 +535,12 @@ async function get_todo() {
 }
 
 async function get_cn_domain_with_global_dns(domain) {
-    var s = await $`brook dohclient -t A --short -d ${domain}`.text()
+    var s = await lib.sh(`brook dohclient -t A --short -d ${domain}`)
     if (s) {
-        if ((await $`brook ipcountry --ip ${s.trim()}`.text()).trim() != 'CN') {
+        if ((await lib.sh(`brook ipcountry --ip ${s.trim()}`)).trim() != 'CN') {
             return
         }
-        s = await $`brook dohclient -t A -d ${domain}`.text()
+        s = await lib.sh(`brook dohclient -t A -d ${domain}`)
         var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
         l.push(domain)
         return l.map(v => {
@@ -551,12 +550,12 @@ async function get_cn_domain_with_global_dns(domain) {
             return b + '.' + a
         })
     }
-    var s = await $`brook dohclient -t AAAA --short -d ${domain}`.text()
+    var s = await lib.sh(`brook dohclient -t AAAA --short -d ${domain}`)
     if (s) {
-        if ((await $`brook ipcountry --ip ${s.trim()}`.text()).trim() != 'CN') {
+        if ((await lib.sh(`brook ipcountry --ip ${s.trim()}`)).trim() != 'CN') {
             return
         }
-        s = await $`brook dohclient -t AAAA -d ${domain}`.text()
+        s = await lib.sh(`brook dohclient -t AAAA -d ${domain}`)
         var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
         l.push(domain)
         return l.map(v => {
@@ -570,12 +569,12 @@ async function get_cn_domain_with_global_dns(domain) {
 }
 
 async function get_cn_domain_with_china_dns(domain) {
-    var s = await $`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t A --short -d ${domain}`.text()
+    var s = await lib.sh(`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t A --short -d ${domain}`)
     if (s) {
-        if ((await $`brook ipcountry --ip ${s.trim()}`.text()).trim() != 'CN') {
+        if ((await lib.sh(`brook ipcountry --ip ${s.trim()}`)).trim() != 'CN') {
             return
         }
-        s = await $`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t A -d ${domain}`.text()
+        s = await lib.sh(`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t A -d ${domain}`)
         var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
         l.push(domain)
         return l.map(v => {
@@ -585,12 +584,12 @@ async function get_cn_domain_with_china_dns(domain) {
             return b + '.' + a
         })
     }
-    var s = await $`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t AAAA --short -d ${domain}`.text()
+    var s = await lib.sh(`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t AAAA --short -d ${domain}`)
     if (s) {
-        if ((await $`brook ipcountry --ip ${s.trim()}`.text()).trim() != 'CN') {
+        if ((await lib.sh(`brook ipcountry --ip ${s.trim()}`)).trim() != 'CN') {
             return
         }
-        s = await $`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t AAAA -d ${domain}`.trim()
+        s = await lib.sh(`brook dohclient -s 'https://dns.alidns.com/dns-query?address=223.5.5.5:443' -t AAAA -d ${domain}`)
         var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
         l.push(domain)
         return l.map(v => {
