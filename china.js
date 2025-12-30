@@ -452,41 +452,79 @@ async function exists(file) {
 async function get_todo() {
     var l = []
     if (options.source == 'gui') {
-        if (await exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log")) {
-            var s = await fs.readFile(os.homedir() + "/Library/Group Containers/group.com.txthinking.brook.onemacos/b.log", { encoding: 'utf8' })
-            if (s && s.trim()) {
-                l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+        if (os.platform() == "darwin") {
+            console.log("darwin")
+            if (await exists(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log")) {
+                var s = await fs.readFile(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log", { encoding: 'utf8' })
+                if (s && s.trim()) {
+                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+                }
+            }
+            if (await exists(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log")) {
+                var s = await fs.readFile(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.logcom.txthinking.brook.one", { encoding: 'utf8' })
+                if (s && s.trim()) {
+                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.domainaddress).map(v => get_domain(v.domainaddress)).filter(v => v))
+                }
             }
         }
-        if (await exists(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log")) {
-            var s = await fs.readFile(os.homedir() + "/Library/Group Containers/group.com.txthinking.brookmacos/b.log", { encoding: 'utf8' })
-            if (s && s.trim()) {
-                l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+        if (os.platform() == "linux") {
+            console.log("linux")
+            if (await exists(os.homedir() + "/.b.log")) {
+                var s = await fs.readFile(os.homedir() + "/.b.log", { encoding: 'utf8' })
+                if (s && s.trim()) {
+                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+                }
+            }
+            if (await exists(os.homedir() + "/.Shiliew.log")) {
+                var s = await fs.readFile(os.homedir() + "/.Shiliew.log", { encoding: 'utf8' })
+                if (s && s.trim()) {
+                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.domainaddress).map(v => get_domain(v.domainaddress)).filter(v => v))
+                }
             }
         }
-        if (await exists(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log")) {
-            var s = await fs.readFile(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log", { encoding: 'utf8' })
-            if (s && s.trim()) {
-                l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+        if (os.platform() == "win32") {
+            var findBrookPackageDir = async function() {
+                const baseDir = path.join(os.homedir(), 'AppData', 'Local', 'Packages');
+                const entries = await fs.readdir(baseDir, { withFileTypes: true });
+                const Entry = entries.find(
+                    entry =>
+                        entry.isDirectory() &&
+                        entry.name.startsWith('com.txthinking.brook_')
+                );
+                if (!Entry) throw 'path not found'
+                return path.join(baseDir, Entry.name)
             }
-        }
-        if (await exists(os.homedir() + "/.b.log")) {
-            var s = await fs.readFile(os.homedir() + "/.b.log", { encoding: 'utf8' })
-            if (s && s.trim()) {
-                l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+            console.log(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\b.log`)
+            if (await exists(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\b.log`)) {
+                var s = await fs.readFile(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\b.log`, { encoding: 'utf8' })
+                if (s && s.trim()) {
+                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+                }
             }
-        }
-        console.log("Windows 下可能无法自动寻找到日志路径，你可能需要手动指定，大概位置类似：C:\\Users\\txthi\\AppData\\Local\\Packages\\com.txthinking.brook.xxx\\LocalCache\\Roaming\\b.log")
-        if (await exists(path.join(process.env.AppData ?? '', ".b.log"))) {
-            var s = await fs.readFile(path.join(process.env.AppData ?? '', ".b.log"), { encoding: 'utf8' })
-            if (s && s.trim()) {
-                l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+            var findShiliewPackageDir = async function() {
+                const baseDir = path.join(os.homedir(), 'AppData', 'Local', 'Packages');
+                const entries = await fs.readdir(baseDir, { withFileTypes: true });
+                const Entry = entries.find(
+                    entry =>
+                        entry.isDirectory() &&
+                        entry.name.startsWith('com.txthinking.shiliew_')
+                );
+                if (!Entry) throw 'path not found'
+                return path.join(baseDir, Entry.name)
+            }
+            console.log(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\Shiliew.log`)
+            if (await exists(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\Shiliew.log`)) {
+                var s = await fs.readFile(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\Shiliew.log`, { encoding: 'utf8' })
+                if (s && s.trim()) {
+                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.domainaddress).map(v => get_domain(v.domainaddress)).filter(v => v))
+                }
             }
         }
     } else {
         var s = await fs.readFile(options.source, { encoding: 'utf8' })
         if (s && s.trim()) {
-            l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+            l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.content).map(v => get_domain(v.content)).filter(v => v))
+            l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.domainaddress).map(v => get_domain(v.domainaddress)).filter(v => v))
             l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.dst).map(v => get_domain(v.dst)).filter(v => v))
             l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.dns).map(v => get_domain(v.domain)).filter(v => v))
         }
