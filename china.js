@@ -452,7 +452,6 @@ async function get_todo() {
     var l = []
     if (options.source == 'gui') {
         if (os.platform() == "darwin") {
-            console.log("darwin")
             if (await exists(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log")) {
                 var s = await fs.readFile(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log", { encoding: 'utf8' })
                 if (s && s.trim()) {
@@ -535,12 +534,12 @@ async function get_todo() {
 }
 
 async function get_cn_domain_with_global_dns(domain) {
-    var s = await lib.sh(`brook dohclient -t A --short -d ${domain}`)
+    var s = await lib.sh(`brook dohclient -s "https://one.one.one.one/dns-query?address=1.1.1.1:443" -t A --short -d ${domain}`)
     if (s) {
         if ((await lib.sh(`brook ipcountry --ip ${s.trim()}`)).trim() != 'CN') {
             return
         }
-        s = await lib.sh(`brook dohclient -t A -d ${domain}`)
+        s = await lib.sh(`brook dohclient -s "https://one.one.one.one/dns-query?address=1.1.1.1:443" -t A -d ${domain}`)
         var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
         l.push(domain)
         return l.map(v => {
@@ -550,12 +549,12 @@ async function get_cn_domain_with_global_dns(domain) {
             return b + '.' + a
         })
     }
-    var s = await lib.sh(`brook dohclient -t AAAA --short -d ${domain}`)
+    var s = await lib.sh(`brook dohclient -s "https://one.one.one.one/dns-query?address=1.1.1.1:443" -t AAAA --short -d ${domain}`)
     if (s) {
         if ((await lib.sh(`brook ipcountry --ip ${s.trim()}`)).trim() != 'CN') {
             return
         }
-        s = await lib.sh(`brook dohclient -t AAAA -d ${domain}`)
+        s = await lib.sh(`brook dohclient -s "https://one.one.one.one/dns-query?address=1.1.1.1:443" -t AAAA -d ${domain}`)
         var l = s.trim().split('\n').map(v => v.split(/\s+/)).filter(v => v.length == 5 && v[3] == 'CNAME').map(v => v[4].slice(0, -1))
         l.push(domain)
         return l.map(v => {
