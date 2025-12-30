@@ -468,7 +468,6 @@ async function get_todo() {
             }
         }
         if (os.platform() == "linux") {
-            console.log("linux")
             if (await exists(os.homedir() + "/.b.log")) {
                 var s = await fs.readFile(os.homedir() + "/.b.log", { encoding: 'utf8' })
                 if (s && s.trim()) {
@@ -494,9 +493,9 @@ async function get_todo() {
                 if (!Entry) throw 'path not found'
                 return path.join(baseDir, Entry.name)
             }
-            console.log(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\b.log`)
-            if (await exists(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\b.log`)) {
-                var s = await fs.readFile(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\b.log`, { encoding: 'utf8' })
+            console.log(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\.b.log`)
+            if (await exists(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\.b.log`)) {
+                var s = await fs.readFile(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\.b.log`, { encoding: 'utf8' })
                 if (s && s.trim()) {
                     l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
                 }
@@ -512,9 +511,9 @@ async function get_todo() {
                 if (!Entry) throw 'path not found'
                 return path.join(baseDir, Entry.name)
             }
-            console.log(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\Shiliew.log`)
-            if (await exists(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\Shiliew.log`)) {
-                var s = await fs.readFile(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\Shiliew.log`, { encoding: 'utf8' })
+            console.log(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\.Shiliew.log`)
+            if (await exists(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\.Shiliew.log`)) {
+                var s = await fs.readFile(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\.Shiliew.log`, { encoding: 'utf8' })
                 if (s && s.trim()) {
                     l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.domainaddress).map(v => get_domain(v.domainaddress)).filter(v => v))
                 }
