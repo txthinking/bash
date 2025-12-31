@@ -466,8 +466,8 @@ async function get_todo() {
             }
         }
         if (os.platform() == "linux") {
-            if (await exists(os.homedir() + "/.b.log")) {
-                var s = await fs.readFile(os.homedir() + "/.b.log", { encoding: 'utf8' })
+            if (await exists(os.homedir() + "/.Brook.log")) {
+                var s = await fs.readFile(os.homedir() + "/.Brook.log", { encoding: 'utf8' })
                 if (s && s.trim()) {
                     l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
                 }
@@ -480,38 +480,14 @@ async function get_todo() {
             }
         }
         if (os.platform() == "win32") {
-            var findBrookPackageDir = async function() {
-                const baseDir = path.join(os.homedir(), 'AppData', 'Local', 'Packages');
-                const entries = await fs.readdir(baseDir, { withFileTypes: true });
-                const Entry = entries.find(
-                    entry =>
-                        entry.isDirectory() &&
-                        entry.name.startsWith('com.txthinking.brook_')
-                );
-                if (!Entry) throw 'path not found'
-                return path.join(baseDir, Entry.name)
-            }
-            console.log(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\.b.log`)
-            if (await exists(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\.b.log`)) {
-                var s = await fs.readFile(`${await findBrookPackageDir()}\\LocalCache\\Roaming\\.b.log`, { encoding: 'utf8' })
+            if (await exists(`C:\\ProgramData\\.Brook.log`)) {
+                var s = await fs.readFile(`C:\\ProgramData\\.Brook.log`, { encoding: 'utf8' })
                 if (s && s.trim()) {
                     l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
                 }
             }
-            var findShiliewPackageDir = async function() {
-                const baseDir = path.join(os.homedir(), 'AppData', 'Local', 'Packages');
-                const entries = await fs.readdir(baseDir, { withFileTypes: true });
-                const Entry = entries.find(
-                    entry =>
-                        entry.isDirectory() &&
-                        entry.name.startsWith('com.txthinking.shiliew_')
-                );
-                if (!Entry) throw 'path not found'
-                return path.join(baseDir, Entry.name)
-            }
-            console.log(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\.Shiliew.log`)
-            if (await exists(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\.Shiliew.log`)) {
-                var s = await fs.readFile(`${await findShiliewPackageDir()}\\LocalCache\\Roaming\\.Shiliew.log`, { encoding: 'utf8' })
+            if (await exists(`C:\\ProgramData\\.Shiliew.log`)) {
+                var s = await fs.readFile(`C:\\ProgramData\\.Shiliew.log`, { encoding: 'utf8' })
                 if (s && s.trim()) {
                     l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.domainaddress).map(v => get_domain(v.domainaddress)).filter(v => v))
                 }
