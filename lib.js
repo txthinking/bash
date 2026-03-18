@@ -56,7 +56,7 @@ var db = (sdb) => {
 
 export default {
 
-    sh: async function(first){
+    sh: async function(first) {
         var cmd = first instanceof Array ? first[0] : first;
         var p = Bun.spawn(["sh", "-c", cmd], {
             stdin: null,
@@ -69,12 +69,12 @@ export default {
         }
         return await Bun.readableStreamToText(p.stdout);
     },
-    
+
     video_second: async function(vora) {
         var a = await $`ffprobe -i ${vora} -show_entries format=duration -v quiet -of csv="p=0"`.text()
         return parseInt(parseFloat(a));
     },
-    
+
     second_to_clock: function(s) {
         var i = parseInt(s / 60 / 60);
         var h = i >= 10 ? `${i}` : `0${i}`;
@@ -90,8 +90,8 @@ export default {
         var l = s.split(":")
         return parseInt(l[0]) * 60 * 60 + parseInt(l[1]) * 60 + parseInt(l[2])
     },
-    
-    country_to_emoji: function (country_code) {
+
+    country_to_emoji: function(country_code) {
         if (country_code === "UK") {
             country_code = "GB";
         }
@@ -101,7 +101,7 @@ export default {
         });
         return flag;
     },
-    
+
     file_exists: async function(s) {
         try {
             await fs.access(s, fs.constants.F_OK)
@@ -110,7 +110,7 @@ export default {
             return false
         }
     },
-    
+
     sqlite: function(path, options) {
         if (options) options = {}
         var s = new Database(path, {
