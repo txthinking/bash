@@ -452,13 +452,13 @@ async function get_todo() {
     var l = []
     if (options.source == 'gui') {
         if (os.platform() == "darwin") {
-            if (await exists(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log")) {
-                var s = await fs.readFile(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log", { encoding: 'utf8' })
+            if (await exists(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.logcom.txthinking.brook")) {
+                var s = await fs.readFile(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.logcom.txthinking.brook", { encoding: 'utf8' })
                 if (s && s.trim()) {
-                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.domainaddress).map(v => get_domain(v.domainaddress)).filter(v => v))
                 }
             }
-            if (await exists(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.log")) {
+            if (await exists(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.logcom.txthinking.brook.one")) {
                 var s = await fs.readFile(os.homedir() + "/Library/Group Containers/FZS65P7GSQ.brook/b.logcom.txthinking.brook.one", { encoding: 'utf8' })
                 if (s && s.trim()) {
                     l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.domainaddress).map(v => get_domain(v.domainaddress)).filter(v => v))
@@ -469,7 +469,7 @@ async function get_todo() {
             if (await exists(os.homedir() + "/.Brook.log")) {
                 var s = await fs.readFile(os.homedir() + "/.Brook.log", { encoding: 'utf8' })
                 if (s && s.trim()) {
-                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.domainaddress).map(v => get_domain(v.domainaddress)).filter(v => v))
                 }
             }
             if (await exists(os.homedir() + "/.Shiliew.log")) {
@@ -483,7 +483,7 @@ async function get_todo() {
             if (await exists(`C:\\ProgramData\\.Brook.log`)) {
                 var s = await fs.readFile(`C:\\ProgramData\\.Brook.log`, { encoding: 'utf8' })
                 if (s && s.trim()) {
-                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY").map(v => get_domain(v.content)).filter(v => v))
+                    l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.domainaddress).map(v => get_domain(v.domainaddress)).filter(v => v))
                 }
             }
             if (await exists(`C:\\ProgramData\\.Shiliew.log`)) {
@@ -496,7 +496,6 @@ async function get_todo() {
     } else {
         var s = await fs.readFile(options.source, { encoding: 'utf8' })
         if (s && s.trim()) {
-            l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.content).map(v => get_domain(v.content)).filter(v => v))
             l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.action == "PROXY" && v.domainaddress).map(v => get_domain(v.domainaddress)).filter(v => v))
             l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.dst).map(v => get_domain(v.dst)).filter(v => v))
             l = l.concat(s.trim().split("\n").map(v => JSON.parse(v)).filter(v => v.dns).map(v => get_domain(v.domain)).filter(v => v))
