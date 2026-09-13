@@ -10,7 +10,8 @@ program
     .description('https://www.txthinking.com/talks/articles/china-list.article')
     .option('--source <string>', "gui: 自动查找 GUI 日志; /path/to/log: 服务端或客户端日志路径。[与 --how 一起使用]", '')
     .option('--how <string>', 'A: 从海外 IP 向海外 DNS 发起查询, 比如开启 GUI 的情况下或在服务器端运行, 缺点是如果域名同时有国内和海外 IP 则会被认为是海外域名; B: 从国内 IP 向阿里 DNS 发起查询, 比如在本地运行, 开启 GUI 情况下也没事，GUI 默认 bypass 了阿里 DNS, 缺点是如果返回的污染 IP 是国内的 IP 就会错乱，但历史经验不会, 还有一个缺点是 Google 有一些域名有国内的 IP。[与 --source 一起使用]', '')
-    .option('--table', '打印整个表。[独立使用]', false)
+    .option('--all', '打印整个表。[独立使用]', false)
+    .option('--query <string>', '查询某个域名。[独立使用]', '')
     .option('--china <string>', '弥补 A 和 B 方案的不足，手动调整某个域名为国内域名。[独立使用]', '')
     .option('--global <string>', '弥补 A 和 B 方案的不足，手动调整某个域名为国际域名。[独立使用]', '')
     .option('--delete <string>', '移除某个域名. 如果想删除所有, 直接删除 rm -rf ~/.china.db。[独立使用]', '')
@@ -18,7 +19,7 @@ program
 program.parse();
 const options = program.opts();
 
-if (!options.china && !options.global && !options.delete && !options.table && !options.modulea && (!options.source || !options.how)) {
+if (!options.china && !options.global && !options.delete && !options.all && !options.query && !options.modulea && (!options.source || !options.how)) {
     program.help()
 }
 
@@ -315,6 +316,23 @@ create table cn(
     db.query('insert into cn(domain, iscn) values(?, ?)').run("zijieapi.com", 1)
 }
 
+if (options.all) {
+    var r = db.query('select * from cn').all();
+    r.sort((a, b) => a.domain > b.domain)
+    console.log(JSON.stringify(r, null, 2))
+    process.exit()
+}
+
+if (options.query) {
+    var l1 = options.query.split('.')
+    var a = l1.pop()
+    var b = l1.pop()
+    var d = b + '.' + a
+    var r = db.query('select * from cn where domain=?').get(d);
+    console.log(JSON.stringify(r, null, 2))
+    process.exit()
+}
+
 if (options.china) {
     var l1 = options.china.split('.')
     var a = l1.pop()
@@ -345,14 +363,6 @@ if (options.global) {
 
 if (options.delete) {
     db.query('delete from cn where domain=?').run(options.delete);
-    process.exit()
-}
-
-if (options.table) {
-    var r = db.query('select * from cn').all();
-    r.sort((a, b) => a.domain > b.domain)
-    const { printTable } = require('console-table-printer');
-    printTable(r)
     process.exit()
 }
 
